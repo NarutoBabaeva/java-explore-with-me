@@ -3,7 +3,7 @@ package ru.tokmakov.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.tokmakov.service.StatsService;
+import ru.tokmakov.service.StatsServiceImpl;
 import ru.tokmakov.dto.HitDto;
 import ru.tokmakov.dto.StatsResponseDto;
 
@@ -13,9 +13,9 @@ import java.util.List;
 @RestController
 public class StatsController {
 
-    private final StatsService statsService;
+    private final StatsServiceImpl statsService;
 
-    public StatsController(StatsService statsService) {
+    public StatsController(StatsServiceImpl statsService) {
         this.statsService = statsService;
     }
 
