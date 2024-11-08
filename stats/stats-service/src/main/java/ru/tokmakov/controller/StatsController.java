@@ -11,7 +11,6 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/stats")
 public class StatsController {
 
     private final StatsService statsService;
@@ -29,7 +28,7 @@ public class StatsController {
         return savedHit;
     }
 
-    @GetMapping
+    @GetMapping("/stats")
     @ResponseStatus(HttpStatus.OK)
     public List<StatsResponseDto> getStatistics(
             @RequestParam(value = "start") String start,
