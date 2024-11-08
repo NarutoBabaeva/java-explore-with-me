@@ -10,17 +10,16 @@
 			"name": "stats",
 			"item": [
 				{
-					"name": "Create Hit",
+					"name": "create hit 1",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Ответ должен содержать код статуса 201 и данные в формате json\", function() {",
-									"    pm.expect(pm.response.code).to.equal(201); ",
-									"    pm.response.to.be.withBody;",
-									"    pm.response.to.be.json;",
-									"}); "
+									"pm.test(\"Статус код должен быть 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -29,8 +28,11 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"packages": {},
-								"type": "text/javascript"
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -39,7 +41,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"app\": \"ewm-main-service\",\n  \"uri\": \"/events/1\",\n  \"ip\": \"192.163.0.1\",\n  \"timestamp\": \"2022-09-06 11:00:23\"\n}",
+							"raw": "{\n  \"app\": \"ewm-main-service\",\n  \"uri\": \"/events/1\",\n  \"ip\": \"121.0.0.1\",\n  \"timestamp\": \"2024-11-08 14:11:22\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -47,14 +49,13 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:9090/stats/hit",
+							"raw": "http://localhost:9090/hit",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "9090",
 							"path": [
-								"stats",
 								"hit"
 							]
 						}
@@ -62,33 +63,79 @@
 					"response": []
 				},
 				{
-					"name": "get stats unique=true",
+					"name": "create hit 2",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
+									"pm.test(\"Статус код должен быть 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"app\": \"ewm-main-service\",\n  \"uri\": \"/events/2\",\n  \"ip\": \"121.0.0.1\",\n  \"timestamp\": \"2024-11-08 14:11:22\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9090/hit",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"hit"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get stats with uris",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200\", function () {",
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
-									"pm.test(\"Content-Type is JSON\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\", \"application/json\");",
+									"pm.test(\"Ответ в формате JSON\", function () {",
+									"    pm.response.to.be.json;",
 									"});",
 									"",
-									"pm.test(\"Response is an array\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData).to.be.an(\"array\");",
-									"});",
-									"",
-									"pm.test(\"Array items have required fields\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    jsonData.forEach(function (item) {",
-									"        pm.expect(item).to.have.property(\"app\");",
-									"        pm.expect(item).to.have.property(\"uri\");",
-									"        pm.expect(item).to.have.property(\"hits\");",
+									"pm.test(\"Поля app, uri и hits присутствуют в каждом объекте\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    jsonData.forEach(hit => {",
+									"        pm.expect(hit).to.have.property(\"app\");",
+									"        pm.expect(hit).to.have.property(\"uri\");",
+									"        pm.expect(hit).to.have.property(\"hits\");",
 									"    });",
-									"});"
+									"});",
+									"",
+									"pm.test(\"Сортировка по убыванию количества просмотров\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    for (let i = 0; i < jsonData.length - 1; i++) {",
+									"        pm.expect(jsonData[i].hits).to.be.at.least(jsonData[i + 1].hits);",
+									"    }",
+									"});",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -99,7 +146,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:9090/stats?start=2022-09-01 00:00:00&end=2022-09-30 23:59:59&uris=/events/1&unique=true",
+							"raw": "http://localhost:9090/stats?start=2020-05-05 00:00:00&end=2035-05-05 00:00:00&uris=/events/1&uris=/events/2",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -111,19 +158,19 @@
 							"query": [
 								{
 									"key": "start",
-									"value": "2022-09-01 00:00:00"
+									"value": "2020-05-05 00:00:00"
 								},
 								{
 									"key": "end",
-									"value": "2022-09-30 23:59:59"
+									"value": "2035-05-05 00:00:00"
 								},
 								{
 									"key": "uris",
 									"value": "/events/1"
 								},
 								{
-									"key": "unique",
-									"value": "true"
+									"key": "uris",
+									"value": "/events/2"
 								}
 							]
 						}
@@ -131,7 +178,7 @@
 					"response": []
 				},
 				{
-					"name": "get stats no params",
+					"name": "get stats no uris",
 					"event": [
 						{
 							"listen": "test",
@@ -192,7 +239,7 @@
 					"response": []
 				},
 				{
-					"name": "get stats required=false",
+					"name": "get stats unique",
 					"event": [
 						{
 							"listen": "test",
@@ -241,7 +288,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:9090/stats?start=2022-09-01 00:00:00&end=2022-09-30 23:59:59&unique=false",
+							"raw": "http://localhost:9090/stats?start=2022-09-01 00:00:00&end=2022-09-30 23:59:59&unique=true",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -261,7 +308,7 @@
 								},
 								{
 									"key": "unique",
-									"value": "false"
+									"value": "true"
 								}
 							]
 						}
