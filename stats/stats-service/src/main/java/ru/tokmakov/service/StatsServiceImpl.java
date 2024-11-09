@@ -3,6 +3,7 @@ package ru.tokmakov.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.tokmakov.dto.HitDto;
 import ru.tokmakov.dto.StatsResponseDto;
 import ru.tokmakov.mapper.HitMapper;
@@ -19,6 +20,7 @@ import java.util.List;
 public class StatsServiceImpl implements StatsService {
     private final StatsRepository statsRepository;
 
+    @Transactional
     public HitDto save(HitDto hitDto) {
         log.info("Saving hit: {}", hitDto);
         Hit hit = HitMapper.hitDtoToHit(hitDto);
@@ -28,6 +30,7 @@ public class StatsServiceImpl implements StatsService {
         return savedHitDto;
     }
 
+    @Transactional(readOnly = true)
     public List<StatsResponseDto> getStats(String start, String end, List<String> uris, boolean unique) {
         log.info("Fetching stats with parameters - start: {}, end: {}, uris: {}, unique: {}", start, end, uris, unique);
 
