@@ -78,7 +78,7 @@ public class GuestEventsServiceImpl implements GuestEventsService {
 
         if (statClient.existsByIp(request.getRemoteAddr())) {
             event.setViews(event.getViews() + 1);
-            eventRepository.save(event);
+            event = eventRepository.save(event);
         }
 
         statClient.recordHit(new HitDto("ewm-main-service",
