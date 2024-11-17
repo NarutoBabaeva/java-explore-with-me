@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS compilations (
 
 CREATE TABLE IF NOT EXISTS events (
                         id BIGSERIAL PRIMARY KEY,
-                        annotation VARCHAR(255) NOT NULL,
+                        annotation VARCHAR NOT NULL,
                         category_id BIGINT NOT NULL REFERENCES categories(id),
                         confirmed_requests INTEGER,
                         created_on TIMESTAMP,
