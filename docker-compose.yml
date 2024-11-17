@@ -19,8 +19,8 @@ services:
       POSTGRES_DB: java-explore-with-me-stats
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    volumes:
-      - stats-db-data:/var/lib/postgresql/stats_data
+#    volumes:
+#      - stats-db-data:/var/lib/postgresql/stats_data
 
   ewm-service:
     depends_on:
@@ -42,9 +42,9 @@ services:
       POSTGRES_DB: java-explore-with-me-main
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    volumes:
-      - main-db-data:/var/lib/postgresql/main_data
-
-volumes:
-  main-db-data:
-  stats-db-data:
+#    volumes:
+#      - main-db-data:/var/lib/postgresql/main_data
+#
+#volumes:
+#  main-db-data:
+#  stats-db-data:
