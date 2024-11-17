@@ -1,10 +1,7 @@
 package ru.tokmakov.dto.event;
 
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
@@ -26,7 +23,7 @@ public class NewEventDto {
     private Location location;
     private Boolean paid;
     @Min(0)
-    private Integer participantLimit;
+    private int participantLimit;
     private Boolean requestModeration;
     @NotBlank
     @Size(min = 2, max = 120)
