@@ -26,6 +26,6 @@ public class NewEventDto {
     private Integer participantLimit;
     private Boolean requestModeration;
     @NotBlank
-    @Size(min = 2, max = 120)
+    @Size(min = 3, max = 120)
     private String title;
 }

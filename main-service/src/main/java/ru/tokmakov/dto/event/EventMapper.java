@@ -14,12 +14,15 @@ public class EventMapper {
         Event event = new Event();
         event.setAnnotation(newEventDto.getAnnotation());
         event.setDescription(newEventDto.getDescription());
+
         event.setLon(newEventDto.getLocation().getLon());
         event.setLat(newEventDto.getLocation().getLat());
 
-        event.setPaid(newEventDto.getPaid());
         if (newEventDto.getParticipantLimit() == null) {
             event.setParticipantLimit(0);
+        }
+        if (newEventDto.getPaid() == null) {
+            event.setPaid(false);
         }
         event.setRequestModeration(newEventDto.getRequestModeration());
         event.setTitle(newEventDto.getTitle());
