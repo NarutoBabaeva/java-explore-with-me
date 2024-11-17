@@ -207,10 +207,6 @@ public class UserEventServiceImpl implements UserEventService {
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " not found or not accessible"));
 
-        if (event.getParticipantLimit() == 0 || !event.getRequestModeration()) {
-            throw new ConflictException("No moderation required or participant limit is zero for this event");
-        }
-
         List<ParticipationRequest> requests = requestRepository.findAllById(eventRequestStatusUpdateRequest.getRequestIds());
         if (requests.isEmpty()) {
             throw new NotFoundException("No requests found for the provided IDs");
