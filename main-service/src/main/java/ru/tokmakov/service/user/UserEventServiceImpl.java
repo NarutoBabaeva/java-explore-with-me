@@ -142,14 +142,6 @@ public class UserEventServiceImpl implements UserEventService {
             throw new EventStateException("Only pending or canceled events can be changed.");
         }
 
-        LocalDateTime currentTime = LocalDateTime.now();
-        LocalDateTime eventDate = LocalDateTime.parse(updateEventUserRequest.getEventDate(),
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        if (eventDate.isBefore(currentTime.plusHours(2))) {
-            log.error("Event date for event with id={} is too soon. Provided: {}, Current time: {}", eventId, eventDate, currentTime);
-            throw new EventDateException("Event date must be at least 2 hours from now.");
-        }
-
         log.info("Updating event details for event ID: {}", eventId);
         updateEventField(event, updateEventUserRequest);
         eventRepository.save(event);
@@ -167,8 +159,15 @@ public class UserEventServiceImpl implements UserEventService {
             ));
         if (updateEventUserRequest.getDescription() != null)
             event.setDescription(updateEventUserRequest.getDescription());
-        if (updateEventUserRequest.getEventDate() != null)
-            event.setEventDate(LocalDateTime.parse(updateEventUserRequest.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        if (updateEventUserRequest.getEventDate() != null) {
+            LocalDateTime currentTime = LocalDateTime.now();
+            LocalDateTime eventDate = LocalDateTime.parse(updateEventUserRequest.getEventDate(),
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            if (eventDate.isBefore(currentTime.plusHours(2))) {
+                log.error("Event date for event with id={} is too soon. Provided: {}, Current time: {}", event.getId(), eventDate, currentTime);
+                throw new EventDateException("Event date must be at least 2 hours from now.");
+            }
+        }
         if (updateEventUserRequest.getLocation() != null) {
             event.setLat(updateEventUserRequest.getLocation().getLat());
             event.setLon(updateEventUserRequest.getLocation().getLon());
