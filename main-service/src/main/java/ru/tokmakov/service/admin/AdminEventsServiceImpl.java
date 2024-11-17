@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AdminEventsServiceImpl implements AdminEventsService {
     private final EventRepository eventRepository;
-    private final CategoryRepository adminCategoryRepository;
+    private final CategoryRepository categoryRepository;
 
 
     @Override
@@ -46,7 +46,7 @@ public class AdminEventsServiceImpl implements AdminEventsService {
 
     @Override
     @Transactional
-    public EventFullDto updateEvent(long eventId, UpdateEventAdminRequest eventShortDto) {
+    public EventFullDto updateEvent(long eventId, UpdateEventAdminRequest updateEventAdminRequest) {
         log.info("Updating event with ID: {}", eventId);
 
         Event event = eventRepository.findById(eventId).orElseThrow(() -> {
@@ -56,47 +56,59 @@ public class AdminEventsServiceImpl implements AdminEventsService {
 
         log.info("Event found: {}", event);
 
-        LocalDateTime eventDate = LocalDateTime.parse(eventShortDto.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        if (eventDate.isBefore(LocalDateTime.now().plusHours(1))) {
-            log.error("Attempt to update event with ID {} to an invalid date: {}", eventId, eventShortDto.getEventDate());
-            throw new EventDateException("Event date must be at least one hour from the current time.");
-        }
-        log.info("Event date updated successfully to: {}", eventDate);
-
-        if (AdminStateAction.PUBLISH_EVENT.equals(eventShortDto.getStateAction())) {
-            if (!event.getState().equals(EventState.PENDING)) {
-                log.error("Cannot publish the event with ID {} because it's not in the right state: {}", eventId, event.getState());
-                throw new EventStateException("Cannot publish the event because it's not in the right state: " + event.getState());
-            }
-            event.setState(EventState.PUBLISHED);
-            event.setPublishedOn(LocalDateTime.now());
-            log.info("Event with ID {} published successfully", eventId);
-        } else if (AdminStateAction.REJECT_EVENT.equals(eventShortDto.getStateAction())) {
-            if (event.getState().equals(EventState.PUBLISHED)) {
-                log.error("Cannot cancel the event with ID {} because it's already published", eventId);
-                throw new EventStateException("Cannot cancel the event because it's already published.");
-            }
-            event.setState(EventState.CANCELED);
-            log.info("Event with ID {} rejected successfully", eventId);
-        }
-
-        event.setAnnotation(eventShortDto.getAnnotation());
-        event.setCategory(adminCategoryRepository.findById(eventShortDto.getCategory()).orElseThrow(() -> {
-            log.error("Category with ID {} not found", eventShortDto.getCategory());
-            return new NotFoundException("category with id " + eventShortDto.getCategory() + " not found");
-        }));
-        event.setDescription(eventShortDto.getDescription());
-        event.setEventDate(eventDate);
-        event.setLat(eventShortDto.getLocation().getLat());
-        event.setLon(eventShortDto.getLocation().getLon());
-        event.setPaid(eventShortDto.getPaid());
-        event.setParticipantLimit(eventShortDto.getParticipantLimit());
-        event.setRequestModeration(eventShortDto.getRequestModeration());
-        event.setTitle(eventShortDto.getTitle());
+        updateFields(event, updateEventAdminRequest);
 
         Event updatedEvent = eventRepository.save(event);
         log.info("Event with ID {} updated successfully", eventId);
 
         return EventMapper.toEventFullDto(updatedEvent);
+    }
+
+    private void updateFields(Event event, UpdateEventAdminRequest updateEventAdminRequest) {
+        if (updateEventAdminRequest.getAnnotation() != null) {
+            event.setAnnotation(updateEventAdminRequest.getAnnotation());
+        }
+        if (updateEventAdminRequest.getCategory() != null) {
+            event.setCategory(categoryRepository.findById(updateEventAdminRequest.getCategory())
+                    .orElseThrow(() -> new NotFoundException("Category with id " + updateEventAdminRequest.getCategory() + " not found")));
+        }
+        if (updateEventAdminRequest.getDescription() != null) {
+            event.setDescription(updateEventAdminRequest.getDescription());
+        }
+        if (updateEventAdminRequest.getEventDate() != null) {
+            LocalDateTime eventDate = LocalDateTime.parse(updateEventAdminRequest.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            if (eventDate.isBefore(LocalDateTime.now().plusHours(1))) {
+                throw new EventDateException("Event date must be at least one hour from the current time.");
+            }
+            event.setEventDate(eventDate);
+        }
+        if (updateEventAdminRequest.getLocation() != null) {
+            event.setLat(updateEventAdminRequest.getLocation().getLat());
+            event.setLon(updateEventAdminRequest.getLocation().getLon());
+        }
+        if (updateEventAdminRequest.getPaid() != null)
+            event.setPaid(updateEventAdminRequest.getPaid());
+        if (updateEventAdminRequest.getParticipantLimit() != null)
+            event.setParticipantLimit(updateEventAdminRequest.getParticipantLimit());
+        if (updateEventAdminRequest.getRequestModeration() != null)
+            event.setRequestModeration(updateEventAdminRequest.getRequestModeration());
+        if (updateEventAdminRequest.getStateAction() != null) {
+            if (AdminStateAction.PUBLISH_EVENT.equals(updateEventAdminRequest.getStateAction())) {
+                if (!event.getState().equals(EventState.PENDING)) {
+                    log.error("Cannot publish the event with ID {} because it's not in the right state: {}", event.getId(), event.getState());
+                    throw new EventStateException("Cannot publish the event because it's not in the right state: " + event.getState());
+                }
+                event.setState(EventState.PUBLISHED);
+                event.setPublishedOn(LocalDateTime.now());
+                log.info("Event with ID {} published successfully", event.getId());
+            } else if (AdminStateAction.REJECT_EVENT.equals(updateEventAdminRequest.getStateAction())) {
+                if (event.getState().equals(EventState.PUBLISHED)) {
+                    log.error("Cannot cancel the event with ID {} because it's already published", event.getId());
+                    throw new EventStateException("Cannot cancel the event because it's already published.");
+                }
+                event.setState(EventState.CANCELED);
+                log.info("Event with ID {} rejected successfully", event.getId());
+            }
+        }
     }
 }
