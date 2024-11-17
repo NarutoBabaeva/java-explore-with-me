@@ -1,5 +1,6 @@
 package ru.tokmakov.dto.event;
 
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,7 @@ public class UpdateEventUserRequest {
     private String eventDate;
     private Location location;
     private Boolean paid;
+    @Min(0)
     private Integer participantLimit;
     private Boolean requestModeration;
     private UserStateAction stateAction;

@@ -151,27 +151,41 @@ public class UserEventServiceImpl implements UserEventService {
         }
 
         log.info("Updating event details for event ID: {}", eventId);
-        event.setAnnotation(updateEventUserRequest.getAnnotation());
-        event.setCategory(categoryRepository.findById(updateEventUserRequest.getCategory())
-                .orElseThrow(() -> {
-                    log.error("Category with id={} not found", updateEventUserRequest.getCategory());
-                    return new NotFoundException("Category with id=" + updateEventUserRequest.getCategory() + " not found");
-                }));
-        event.setDescription(updateEventUserRequest.getDescription());
-        event.setEventDate(eventDate);
-        event.setLat(updateEventUserRequest.getLocation().getLat());
-        event.setLon(updateEventUserRequest.getLocation().getLon());
-        event.setPaid(updateEventUserRequest.getPaid());
-        event.setParticipantLimit(updateEventUserRequest.getParticipantLimit());
-        event.setRequestModeration(updateEventUserRequest.getRequestModeration());
-        event.setTitle(updateEventUserRequest.getTitle());
-
+        updateEventField(event, updateEventUserRequest);
         eventRepository.save(event);
         log.info("Event with id={} updated successfully", eventId);
 
         return EventMapper.toEventFullDto(event);
     }
 
+    private void updateEventField(Event event, UpdateEventUserRequest updateEventUserRequest) {
+        if (updateEventUserRequest.getAnnotation() != null)
+            event.setAnnotation(updateEventUserRequest.getAnnotation());
+        if (updateEventUserRequest.getCategory() != null)
+            event.setCategory(categoryRepository.findById(updateEventUserRequest.getCategory()).orElseThrow(
+                    () -> new NotFoundException("Category with id=" + updateEventUserRequest.getCategory() + " was not found")
+            ));
+        if (updateEventUserRequest.getDescription() != null)
+            event.setDescription(updateEventUserRequest.getDescription());
+        if (updateEventUserRequest.getEventDate() != null)
+            event.setEventDate(LocalDateTime.parse(updateEventUserRequest.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        if (updateEventUserRequest.getLocation() != null) {
+            event.setLat(updateEventUserRequest.getLocation().getLat());
+            event.setLon(updateEventUserRequest.getLocation().getLon());
+        }
+        if (updateEventUserRequest.getPaid() != null)
+            event.setPaid(updateEventUserRequest.getPaid());
+        if (updateEventUserRequest.getParticipantLimit() != null)
+            event.setParticipantLimit(updateEventUserRequest.getParticipantLimit());
+        if (updateEventUserRequest.getRequestModeration() != null)
+            event.setRequestModeration(updateEventUserRequest.getRequestModeration());
+        if (updateEventUserRequest.getStateAction() != null) {
+            if (updateEventUserRequest.getStateAction() == UserStateAction.CANCEL_REVIEW)
+                event.setState(EventState.CANCELED);
+        }
+        if (updateEventUserRequest.getTitle() != null)
+            event.setTitle(updateEventUserRequest.getTitle());
+    }
 
     @Override
     public List<ParticipationRequestDto> findParticipation(Long userId, Long eventId) {
