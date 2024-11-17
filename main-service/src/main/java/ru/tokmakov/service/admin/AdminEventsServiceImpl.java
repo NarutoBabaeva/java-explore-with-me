@@ -5,10 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
+import ru.tokmakov.exception.BadRequestException;
 import ru.tokmakov.exception.NotFoundException;
 import ru.tokmakov.dto.event.*;
 import org.springframework.stereotype.Service;
-import ru.tokmakov.exception.event.EventDateException;
 import ru.tokmakov.exception.event.EventStateException;
 import ru.tokmakov.model.Event;
 import ru.tokmakov.repository.CategoryRepository;
@@ -78,7 +78,7 @@ public class AdminEventsServiceImpl implements AdminEventsService {
         if (updateEventAdminRequest.getEventDate() != null) {
             LocalDateTime eventDate = LocalDateTime.parse(updateEventAdminRequest.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             if (eventDate.isBefore(LocalDateTime.now().plusHours(1))) {
-                throw new EventDateException("Event date must be at least one hour from the current time.");
+                throw new BadRequestException("Event date must be at least one hour from the current time.");
             }
             event.setEventDate(eventDate);
         }
