@@ -49,10 +49,14 @@ public class GuestEventsServiceImpl implements GuestEventsService {
         text = text.toLowerCase();
 
         Pageable pageable = PageRequest.of(from / size, size);
-        Page<Event> events = sort == SortType.EVENT_DATE ?
-                eventRepository.findEventsWithFiltersOrderByDate(text, categories, paid, start, end, onlyAvailable, pageable)
-                :
-                eventRepository.findEventsWithFiltersOrderByViews(text, categories, paid, start, end, onlyAvailable, pageable);
+        Page<Event> events;
+        if (sort == null) {
+            events = eventRepository.findEventsWithFilters(text, categories, paid, start, end, onlyAvailable, pageable);
+        } else if(sort == SortType.EVENT_DATE) {
+            events = eventRepository.findEventsWithFiltersOrderByDate(text, categories, paid, start, end, onlyAvailable, pageable);
+        } else {
+            events = eventRepository.findEventsWithFiltersOrderByViews(text, categories, paid, start, end, onlyAvailable, pageable);
+        }
 
         statClient.recordHit(new HitDto("ewm-main-service",
                 request.getRequestURI(),

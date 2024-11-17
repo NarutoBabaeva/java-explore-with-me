@@ -27,7 +27,7 @@ public class GuestEventsController {
                                           @RequestParam(required = false) String rangeStart,
                                           @RequestParam(required = false) String rangeEnd,
                                           @RequestParam(required = false, defaultValue = "false") Boolean onlyAvailable,
-                                          @RequestParam SortType sort,
+                                          @RequestParam(required = false) SortType sort,
                                           @RequestParam(required = false, defaultValue = "0") int from,
                                           @RequestParam(required = false, defaultValue = "10") int size,
                                           HttpServletRequest request) {
