@@ -181,6 +181,8 @@ public class UserEventServiceImpl implements UserEventService {
         if (updateEventUserRequest.getStateAction() != null) {
             if (updateEventUserRequest.getStateAction() == UserStateAction.CANCEL_REVIEW)
                 event.setState(EventState.CANCELED);
+            else
+                event.setState(EventState.PENDING);
         }
         if (updateEventUserRequest.getTitle() != null)
             event.setTitle(updateEventUserRequest.getTitle());

@@ -76,6 +76,11 @@ public class GuestEventsServiceImpl implements GuestEventsService {
             throw new NotFoundException("Event with id=" + id + " not found");
         }
 
+        if (statClient.existsByIp(request.getRemoteAddr())) {
+            event.setViews(event.getViews() + 1);
+            eventRepository.save(event);
+        }
+
         statClient.recordHit(new HitDto("ewm-main-service",
                 request.getRequestURI(),
                 request.getRemoteAddr(),

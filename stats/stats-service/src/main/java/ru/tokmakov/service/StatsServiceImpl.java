@@ -49,4 +49,8 @@ public class StatsServiceImpl implements StatsService {
         log.info("Statistics fetched successfully with {} records", stats.size());
         return stats;
     }
+
+    public Boolean existByIp(String ip) {
+        return statsRepository.existsByIp(ip);
+    }
 }

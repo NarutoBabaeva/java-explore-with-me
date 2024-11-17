@@ -45,4 +45,8 @@ public class StatClient {
                 });
         return response.getBody();
     }
+
+    public Boolean existsByIp(String ip) {
+        return restTemplate.getForObject(URL + "?ip=" + ip, Boolean.class);
+    }
 }
