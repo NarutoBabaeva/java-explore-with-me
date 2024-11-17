@@ -46,7 +46,7 @@ public class StatClient {
         return response.getBody();
     }
 
-    public Boolean existsByIp(String ip) {
-        return restTemplate.getForObject(URL + "?ip=" + ip, Boolean.class);
+    public Boolean existsByIpAndUri(String ip, String uri) {
+        return restTemplate.getForObject(URL + "?ip=" + ip + "&uri=" + uri, Boolean.class);
     }
 }

@@ -32,5 +32,5 @@ public interface StatsRepository extends JpaRepository<Hit, Long> {
                                           @Param("end") LocalDateTime end,
                                           @Param("uris") List<String> uris);
 
-    Boolean existsByIp(String ip);
+    Boolean existsByIpAndUri(String ip, String uri);
 }

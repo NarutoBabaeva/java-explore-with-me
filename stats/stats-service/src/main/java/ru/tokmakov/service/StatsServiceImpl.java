@@ -50,7 +50,7 @@ public class StatsServiceImpl implements StatsService {
         return stats;
     }
 
-    public Boolean existByIp(String ip) {
-        return statsRepository.existsByIp(ip);
+    public Boolean existByIp(String ip, String uri) {
+        return statsRepository.existsByIpAndUri(ip, uri);
     }
 }
