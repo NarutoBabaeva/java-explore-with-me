@@ -74,7 +74,7 @@ public class UserRequestServiceImpl implements UserRequestService {
         request.setRequester(user);
         request.setCreated(LocalDateTime.now());
 
-        if (Boolean.FALSE.equals(event.getRequestModeration())) {
+        if (!event.getRequestModeration()) {
             request.setStatus(RequestStatus.CONFIRMED);
             event.setConfirmedRequests(event.getConfirmedRequests() + 1);
             eventRepository.save(event);

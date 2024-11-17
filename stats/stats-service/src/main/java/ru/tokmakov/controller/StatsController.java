@@ -42,6 +42,9 @@ public class StatsController {
 
     @GetMapping
     public Boolean existsByIp(@RequestParam String ip) {
-        return statsService.existByIp(ip);
+        log.info("StatsController exists by ip is called ip={}", ip);
+        Boolean res = statsService.existByIp(ip);
+        log.info("StatsController exists by ip returned {}", res);
+        return res;
     }
 }
