@@ -15,7 +15,6 @@ import ru.tokmakov.repository.CategoryRepository;
 import ru.tokmakov.repository.UserRepository;
 import ru.tokmakov.dto.event.*;
 import org.springframework.stereotype.Service;
-import ru.tokmakov.exception.event.EventDateException;
 import ru.tokmakov.exception.event.EventStateException;
 import ru.tokmakov.exception.ForbiddenAccessException;
 import ru.tokmakov.model.Category;
@@ -165,7 +164,7 @@ public class UserEventServiceImpl implements UserEventService {
                     DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             if (eventDate.isBefore(currentTime.plusHours(2))) {
                 log.error("Event date for event with id={} is too soon. Provided: {}, Current time: {}", event.getId(), eventDate, currentTime);
-                throw new EventDateException("Event date must be at least 2 hours from now.");
+                throw new BadRequestException("Event date must be at least 2 hours from now.");
             }
         }
         if (updateEventUserRequest.getLocation() != null) {

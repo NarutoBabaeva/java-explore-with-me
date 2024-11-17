@@ -13,7 +13,6 @@ import ru.tokmakov.exception.category.CategoryNameAlreadyExistsException;
 import ru.tokmakov.exception.category.CategoryNotEmptyException;
 import ru.tokmakov.exception.compilation.TitleAlreadyExistsException;
 import ru.tokmakov.exception.event.ConflictException;
-import ru.tokmakov.exception.event.EventDateException;
 import ru.tokmakov.exception.event.EventDateNotValidException;
 import ru.tokmakov.exception.event.EventStateException;
 import ru.tokmakov.exception.user.EmailAlreadyExistsException;
@@ -37,7 +36,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({CategoryNameAlreadyExistsException.class, EmailAlreadyExistsException.class, EventDateNotValidException.class})
-    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleDataIntegrityViolationException(RuntimeException e) {
         return new ErrorResponse(
                 "CONFLICT",
@@ -58,7 +57,7 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler({EventStateException.class, EventDateException.class, CategoryNotEmptyException.class, ConflictException.class, TitleAlreadyExistsException.class, ForbiddenAccessException.class})
+    @ExceptionHandler({EventStateException.class, CategoryNotEmptyException.class, ConflictException.class, TitleAlreadyExistsException.class, ForbiddenAccessException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleConflictException(RuntimeException e) {
         return new ErrorResponse(
