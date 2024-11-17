@@ -52,7 +52,7 @@ public class GuestEventsServiceImpl implements GuestEventsService {
         Page<Event> events;
         if (sort == null) {
             events = eventRepository.findEventsWithFilters(text, categories, paid, start, end, onlyAvailable, pageable);
-        } else if(sort == SortType.EVENT_DATE) {
+        } else if (sort == SortType.EVENT_DATE) {
             events = eventRepository.findEventsWithFiltersOrderByDate(text, categories, paid, start, end, onlyAvailable, pageable);
         } else {
             events = eventRepository.findEventsWithFiltersOrderByViews(text, categories, paid, start, end, onlyAvailable, pageable);
