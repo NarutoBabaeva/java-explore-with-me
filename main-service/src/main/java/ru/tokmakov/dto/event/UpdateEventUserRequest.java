@@ -8,10 +8,6 @@ import lombok.Setter;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-enum UserStateAction {
-    SEND_TO_REVIEW, CANCEL_REVIEW
-}
-
 @Getter
 @Setter
 @AllArgsConstructor

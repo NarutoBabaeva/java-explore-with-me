@@ -36,12 +36,7 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(
-            {
-                    CategoryNameAlreadyExistsException.class,
-                    EmailAlreadyExistsException.class,
-                    EventDateNotValidException.class
-            })
+    @ExceptionHandler({CategoryNameAlreadyExistsException.class, EmailAlreadyExistsException.class, EventDateNotValidException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleDataIntegrityViolationException(RuntimeException e) {
         return new ErrorResponse(
