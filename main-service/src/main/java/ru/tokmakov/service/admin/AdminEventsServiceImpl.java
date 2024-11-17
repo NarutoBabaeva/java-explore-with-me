@@ -33,8 +33,18 @@ public class AdminEventsServiceImpl implements AdminEventsService {
     public List<EventFullDto> findEvents(Set<Long> users, Set<EventState> states, Set<Long> categories,
                                          String rangeStart, String rangeEnd, int from, int size) {
 
-        LocalDateTime start = LocalDateTime.parse(rangeStart, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        LocalDateTime end = LocalDateTime.parse(rangeEnd, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime start;
+        LocalDateTime end;
+
+        if (rangeStart == null)
+            start = LocalDateTime.now();
+        else
+            start = LocalDateTime.parse(rangeStart, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+        if (rangeEnd == null)
+            end = LocalDateTime.now();
+        else
+            end = LocalDateTime.parse(rangeEnd, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
         Pageable pageable = PageRequest.of(from / size, size);
         List<Event> events = eventRepository.findByFilters(users, states, categories, start, end, pageable);

@@ -24,11 +24,11 @@ public class AdminEventsController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<EventFullDto> findEvents(@RequestParam Set<Long> users,
-                                         @RequestParam Set<EventState> states,
-                                         @RequestParam Set<Long> categories,
-                                         @RequestParam String rangeStart,
-                                         @RequestParam String rangeEnd,
+    public List<EventFullDto> findEvents(@RequestParam(required = false) Set<Long> users,
+                                         @RequestParam(required = false) Set<EventState> states,
+                                         @RequestParam(required = false) Set<Long> categories,
+                                         @RequestParam(required = false) String rangeStart,
+                                         @RequestParam(required = false) String rangeEnd,
                                          @Min(0) @RequestParam(required = false, defaultValue = "0") int from,
                                          @Min(1) @RequestParam(required = false, defaultValue = "10") int size) {
         return adminEventsService.findEvents(users, states, categories, rangeStart, rangeEnd, from, size);
