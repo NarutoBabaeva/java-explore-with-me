@@ -13,7 +13,6 @@ import ru.tokmakov.exception.category.CategoryNotEmptyException;
 import ru.tokmakov.exception.compilation.TitleAlreadyExistsException;
 import ru.tokmakov.exception.event.ConflictException;
 import ru.tokmakov.exception.event.EventStateException;
-import ru.tokmakov.exception.user.EmailAlreadyExistsException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -28,17 +27,6 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(
                 "BAD_REQUEST",
                 "Incorrectly made request.",
-                e.getMessage(),
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        );
-    }
-
-    @ExceptionHandler({EmailAlreadyExistsException.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleDataIntegrityViolationException(RuntimeException e) {
-        return new ErrorResponse(
-                "CONFLICT",
-                "Integrity constraint has been violated.",
                 e.getMessage(),
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
         );

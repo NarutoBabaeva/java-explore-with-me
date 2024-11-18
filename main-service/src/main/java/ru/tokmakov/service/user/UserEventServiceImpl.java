@@ -239,7 +239,7 @@ public class UserEventServiceImpl implements UserEventService {
                     confirmedRequests.add(request);
                     confirmedCount++;
                     log.info("Request with id={} automatically confirmed for eventId={}", request.getId(), eventId);
-                } else if (confirmedCount < event.getParticipantLimit()) {
+                } else if (confirmedCount <= event.getParticipantLimit()) {
                     request.setStatus(RequestStatus.CONFIRMED);
                     confirmedRequests.add(request);
                     confirmedCount++;
