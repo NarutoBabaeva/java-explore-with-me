@@ -29,11 +29,13 @@ public class AdminCompilationsServiceImpl implements AdminCompilationsService {
     public CompilationDto saveCompilations(NewCompilationDto newCompilationDto) {
         Compilation compilation = new Compilation();
         compilation.setTitle(newCompilationDto.getTitle());
-        compilation.setPinned(newCompilationDto.getPinned());
+        compilation.setPinned(newCompilationDto.getPinned() != null ? newCompilationDto.getPinned() : false);
 
         if (newCompilationDto.getEvents() != null && !newCompilationDto.getEvents().isEmpty()) {
             Set<Event> events = eventRepository.findAllByIds(newCompilationDto.getEvents());
             compilation.setEvents(events);
+        } else {
+            compilation.setEvents(new HashSet<>());
         }
 
         if (compilationRepository.existsByTitle(compilation.getTitle())) {

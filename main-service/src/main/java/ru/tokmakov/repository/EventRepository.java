@@ -74,7 +74,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
            "AND (:text IS NULL OR (e.annotation ILIKE :text OR e.description ILIKE :text)) " +
            "AND (:categories IS NULL OR e.category.id IN :categories) " +
            "AND (:paid IS NULL OR e.paid = :paid) " +
-           "AND (e.eventDate > :currentTimestamp) " +
+           "AND (e.eventDate >= :currentTimestamp) " +
            "AND (:onlyAvailable = false OR e.participantLimit > e.confirmedRequests)")
     Page<Event> findEventsWithFiltersWithoutDate(
             @Param("text") String text,
