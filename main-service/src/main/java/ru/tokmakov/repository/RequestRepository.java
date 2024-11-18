@@ -2,10 +2,10 @@ package ru.tokmakov.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import ru.tokmakov.dto.event.RequestStatus;
 import ru.tokmakov.model.ParticipationRequest;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RequestRepository extends JpaRepository<ParticipationRequest, Long> {
@@ -15,5 +15,5 @@ public interface RequestRepository extends JpaRepository<ParticipationRequest, L
 
     List<ParticipationRequest> findByRequesterId(Long requester);
 
-    List<ParticipationRequest> findAllByEventIdAndStatus(Long eventId, RequestStatus status);
+    Optional<ParticipationRequest> findByIdAndRequesterId(Long id, Long requester);
 }

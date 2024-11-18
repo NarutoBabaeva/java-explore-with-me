@@ -52,7 +52,7 @@ public class UserRequestServiceImpl implements UserRequestService {
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
 
         if (event.getInitiator().getId().equals(userId)) {
-            throw new ConflictException("Event initiator cannot request participation in their own event.");
+            throw new ConflictException("Event initiator can not request participation in their own event.");
         }
 
         if (!event.getState().equals(EventState.PUBLISHED)) {
@@ -88,16 +88,20 @@ public class UserRequestServiceImpl implements UserRequestService {
     }
 
     @Override
+    @Transactional
     public ParticipationRequestDto cancelParticipationRequest(Long userId, Long requestId) {
-        ParticipationRequest request = requestRepository.findById(requestId)
-                .orElseThrow(() -> new NotFoundException("Request with id=" + requestId + " was not found"));
+        log.info("Received request to cancel participation for userId={} and requestId={}", userId, requestId);
 
-        if (!request.getRequester().getId().equals(userId)) {
-            throw new NotFoundException("Request with id=" + requestId + " is not accessible by user with id=" + userId);
-        }
+        ParticipationRequest request = requestRepository.findByIdAndRequesterId(requestId, userId)
+                .orElseThrow(() -> {
+                    log.error("Request with id={} not found for userId={}", requestId, userId);
+                    return new NotFoundException("Request with id=" + requestId + " was not found");
+                });
 
         request.setStatus(RequestStatus.PENDING);
         requestRepository.save(request);
+
+        log.info("Successfully cancelled participation for userId={} and requestId={}", userId, requestId);
 
         return ParticipationRequestMapper.toParticipationRequestDto(request);
     }

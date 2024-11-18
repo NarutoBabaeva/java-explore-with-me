@@ -223,7 +223,7 @@ public class UserEventServiceImpl implements UserEventService {
         log.info("Processing {} requests for eventId={}", requests.size(), eventId);
 
         for (ParticipationRequest request : requests) {
-            if (!request.getStatus().equals(RequestStatus.PENDING)) {
+            if (request.getStatus() != RequestStatus.PENDING) {
                 log.warn("Request with id={} has status {} instead of PENDING", request.getId(), request.getStatus());
                 throw new ConflictException("Request must have status PENDING");
             }
@@ -237,22 +237,19 @@ public class UserEventServiceImpl implements UserEventService {
             log.info("Processing request with id={} for status {}", request.getId(), eventRequestStatusUpdateRequest.getStatus());
 
             if (eventRequestStatusUpdateRequest.getStatus().equals(RequestStatus.CONFIRMED)) {
-                if (event.getParticipantLimit() == 0 || event.getRequestModeration()) {
-                    if (event.getParticipantLimit() != 0 && confirmedCount >= event.getParticipantLimit()) {
-                        log.error("Participant limit reached for eventId={} (confirmedCount={})", eventId, confirmedCount);
-                        throw new ConflictException("The participant limit has been reached");
-                    }
+                if (event.getParticipantLimit() == 0 || !event.getRequestModeration()) {
                     request.setStatus(RequestStatus.CONFIRMED);
                     confirmedRequests.add(request);
                     confirmedCount++;
-                    log.info("Request with id={} confirmed for eventId={}", request.getId(), eventId);
+                    log.info("Request with id={} automatically confirmed for eventId={}", request.getId(), eventId);
                 } else if (confirmedCount < event.getParticipantLimit()) {
+                    request.setStatus(RequestStatus.CONFIRMED);
                     confirmedRequests.add(request);
                     confirmedCount++;
                     log.info("Request with id={} confirmed for eventId={} (confirmedCount={})", request.getId(), eventId, confirmedCount);
                 } else {
-                    log.error("Participant limit reached for eventId={} (confirmedCount={})", eventId, confirmedCount);
-                    throw new ConflictException("The participant limit has been reached");
+                    rejectedRequests.add(request);
+                    log.info("Confirmed count >= participant limit request with id={} rejected for eventId={}", request.getId(), eventId);
                 }
             } else if (eventRequestStatusUpdateRequest.getStatus().equals(RequestStatus.REJECTED)) {
                 request.setStatus(RequestStatus.REJECTED);
@@ -263,11 +260,16 @@ public class UserEventServiceImpl implements UserEventService {
 
         requestRepository.saveAll(confirmedRequests);
         requestRepository.saveAll(rejectedRequests);
+
         log.info("Saved {} confirmed and {} rejected requests for eventId={}", confirmedRequests.size(), rejectedRequests.size(), eventId);
 
         event.setConfirmedRequests(confirmedCount);
         eventRepository.save(event);
         log.info("Updated confirmed requests count to {} for eventId={}", confirmedCount, eventId);
+
+        if (event.getParticipantLimit() != 0 && confirmedCount >= event.getParticipantLimit()) {
+            throw new ConflictException("The participant limit has been reached, all pending requests have been rejected");
+        }
 
         EventRequestStatusUpdateResult result = new EventRequestStatusUpdateResult(
                 confirmedRequests.stream().map(ParticipationRequestMapper::toParticipationRequestDto).toList(),
