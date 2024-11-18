@@ -264,7 +264,7 @@ public class UserEventServiceImpl implements UserEventService {
         eventRepository.save(event);
         log.info("Updated confirmed requests count to {} for eventId={}", confirmedCount, eventId);
 
-        if (event.getParticipantLimit() != 0 && confirmedCount >= event.getParticipantLimit()) {
+        if (event.getParticipantLimit() != 0 && confirmedCount > event.getParticipantLimit()) {
             throw new ConflictException("The participant limit has been reached, all pending requests have been rejected");
         }
 
