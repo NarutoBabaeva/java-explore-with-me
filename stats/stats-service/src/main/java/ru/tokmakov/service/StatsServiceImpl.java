@@ -37,6 +37,10 @@ public class StatsServiceImpl implements StatsService {
         LocalDateTime startDateTime = LocalDateTime.parse(start, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         LocalDateTime endDateTime = LocalDateTime.parse(end, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
+        if (startDateTime.isAfter(endDateTime)) {
+            throw new IllegalArgumentException("Start date and end date must be before end date");
+        }
+
         List<StatsResponseDto> stats;
         if (unique) {
             log.debug("Fetching unique hits");
