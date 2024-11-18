@@ -193,7 +193,7 @@ public class UserEventServiceImpl implements UserEventService {
             return new NotFoundException("Event with id=" + eventId + " not found");
         });
 
-        List<ParticipationRequest> requests = requestRepository.findAllByEventIdAndRequesterId(eventId, userId);
+        List<ParticipationRequest> requests = requestRepository.findAllByEventId(eventId);
 
         List<ParticipationRequestDto> requestDtos = requests.stream()
                 .map(ParticipationRequestMapper::toParticipationRequestDto)
