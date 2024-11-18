@@ -219,10 +219,8 @@ public class UserEventServiceImpl implements UserEventService {
         List<ParticipationRequest> requests = requestRepository.findAllById(eventRequestStatusUpdateRequest.getRequestIds());
         log.info("Processing {} requests for eventId={}", requests.size(), eventId);
 
-        requests.removeIf(
-                (r) -> (r.getStatus() == RequestStatus.CONFIRMED && (!r.getEvent().getRequestModeration() || r.getEvent().getParticipantLimit() == 0))
-        );
-        
+        requests.removeIf((r) -> (r.getStatus() == RequestStatus.CONFIRMED && (!r.getEvent().getRequestModeration() || r.getEvent().getParticipantLimit() == 0)));
+
         for (ParticipationRequest request : requests) {
 
             if (request.getStatus() != RequestStatus.PENDING) {
