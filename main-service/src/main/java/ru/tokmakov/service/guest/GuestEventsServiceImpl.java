@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import ru.tokmakov.dto.HitDto;
 import ru.tokmakov.dto.event.*;
 import org.springframework.stereotype.Service;
@@ -35,28 +36,19 @@ public class GuestEventsServiceImpl implements GuestEventsService {
                                           String rangeEnd,
                                           Boolean onlyAvailable,
                                           SortType sort,
-                                          int from,
-                                          int size,
+                                          Integer from,
+                                          Integer size,
                                           HttpServletRequest request) {
         LocalDateTime start = parseDateTime(rangeStart).orElse(null);
         LocalDateTime end = parseDateTime(rangeEnd).orElse(null);
 
-        if (start == null || end == null) {
-            start = LocalDateTime.now();
-            end = LocalDateTime.now();
-        }
+        String sortField = sort == SortType.VIEWS ? "views" : "eventDate";
 
-        text = text.toLowerCase();
+        Sort sortBy = Sort.by(sortField);
 
-        Pageable pageable = PageRequest.of(from / size, size);
-        Page<Event> events;
-        if (sort == null) {
-            events = eventRepository.findEventsWithFilters(text, categories, paid, start, end, onlyAvailable, pageable);
-        } else if (sort == SortType.EVENT_DATE) {
-            events = eventRepository.findEventsWithFiltersOrderByDate(text, categories, paid, start, end, onlyAvailable, pageable);
-        } else {
-            events = eventRepository.findEventsWithFiltersOrderByViews(text, categories, paid, start, end, onlyAvailable, pageable);
-        }
+        Pageable pageable = PageRequest.of(from / size, size, sortBy);
+
+        Page<Event> events = eventRepository.findEventsWithFilters(text, categories, paid, start, end, onlyAvailable, pageable);
 
         statClient.recordHit(new HitDto("ewm-main-service",
                 request.getRequestURI(),

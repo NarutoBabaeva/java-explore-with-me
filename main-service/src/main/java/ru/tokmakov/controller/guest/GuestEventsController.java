@@ -21,9 +21,9 @@ public class GuestEventsController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<EventShortDto> findEvents(@RequestParam String text,
-                                          @RequestParam List<Integer> categories,
-                                          @RequestParam Boolean paid,
+    public List<EventShortDto> findEvents(@RequestParam(required = false) String text,
+                                          @RequestParam(required = false) List<Integer> categories,
+                                          @RequestParam(required = false) Boolean paid,
                                           @RequestParam(required = false) String rangeStart,
                                           @RequestParam(required = false) String rangeEnd,
                                           @RequestParam(required = false, defaultValue = "false") Boolean onlyAvailable,

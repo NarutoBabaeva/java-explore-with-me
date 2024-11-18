@@ -1,6 +1,5 @@
 package ru.tokmakov.controller.admin;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.validation.annotation.Validated;
 import ru.tokmakov.dto.event.EventState;
@@ -29,8 +28,8 @@ public class AdminEventsController {
                                          @RequestParam(required = false) Set<Long> categories,
                                          @RequestParam(required = false) String rangeStart,
                                          @RequestParam(required = false) String rangeEnd,
-                                         @Min(0) @RequestParam(defaultValue = "0") Integer from,
-                                         @Min(1) @RequestParam(defaultValue = "10") Integer size) {
+                                         @RequestParam(required = false, defaultValue = "0") Integer from,
+                                         @RequestParam(required = false, defaultValue = "10") Integer size) {
         return adminEventsService.findEvents(users, states, categories, rangeStart, rangeEnd, from, size);
     }
 
