@@ -14,7 +14,6 @@ import ru.tokmakov.model.Compilation;
 import ru.tokmakov.repository.CompilationRepository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -27,11 +26,14 @@ public class GuestCompilationsServiceImpl implements GuestCompilationsService {
     public List<CompilationDto> findCompilations(Boolean pinned, Integer from, Integer size) {
         log.info("Fetching compilations with pinned: {}, from: {}, size: {}", pinned, from, size);
         Pageable pageable = PageRequest.of(from / size, size);
-        Page<Compilation> compilations = compilationRepository.findByPinned(pinned, pageable);
+        Page<Compilation> compilations = pinned == null ?
+                compilationRepository.findAll(pageable)
+                :
+                compilationRepository.findByPinned(pinned, pageable);
 
-        List<CompilationDto> compilationDtos = compilations.getContent().stream()
+        List<CompilationDto> compilationDtos = compilations.stream()
                 .map(CompilationMapper::toCompilationDto)
-                .collect(Collectors.toList());
+                .toList();
         log.info("Fetched {} compilations", compilationDtos.size());
         return compilationDtos;
     }

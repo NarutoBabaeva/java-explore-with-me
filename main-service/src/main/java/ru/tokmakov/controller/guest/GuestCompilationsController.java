@@ -19,7 +19,7 @@ public class GuestCompilationsController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<CompilationDto> findCompilations(@RequestParam Boolean pinned,
+    public List<CompilationDto> findCompilations(@RequestParam(required = false) Boolean pinned,
                                                  @Min(value = 0, message = "The 'from' parameter must be 0 or greater")
                                                  @RequestParam(required = false, defaultValue = "0") Integer from,
                                                  @Min(value = 1, message = "The 'size' parameter must be 1 or greater")
