@@ -98,7 +98,7 @@ public class UserRequestServiceImpl implements UserRequestService {
                     return new NotFoundException("Request with id=" + requestId + " was not found");
                 });
 
-        request.setStatus(RequestStatus.PENDING);
+        request.setStatus(RequestStatus.CANCELED);
         requestRepository.save(request);
 
         log.info("Successfully cancelled participation for userId={} and requestId={}", userId, requestId);

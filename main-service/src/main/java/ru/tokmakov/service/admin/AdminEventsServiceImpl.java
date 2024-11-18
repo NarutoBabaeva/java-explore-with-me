@@ -118,5 +118,8 @@ public class AdminEventsServiceImpl implements AdminEventsService {
                 log.info("Event with ID {} rejected successfully", event.getId());
             }
         }
+        if (updateEventAdminRequest.getTitle() != null) {
+            event.setTitle(updateEventAdminRequest.getTitle());
+        }
     }
 }
