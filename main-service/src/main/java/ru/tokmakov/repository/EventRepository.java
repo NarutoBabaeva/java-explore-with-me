@@ -58,7 +58,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
            "AND (:paid IS NULL OR e.paid = :paid) " +
            "AND (e.eventDate >= :start) " +
            "AND (e.eventDate <= :end) " +
-           "AND (:onlyAvailable = false OR e.participantLimit > e.confirmedRequests)")
+           "AND (:onlyAvailable = false OR e.participantLimit == 0 OR e.participantLimit > e.confirmedRequests)")
     Page<Event> findEventsWithFilters(
             @Param("text") String text,
             @Param("categories") List<Integer> categories,
@@ -75,7 +75,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
            "AND (:categories IS NULL OR e.category.id IN :categories) " +
            "AND (:paid IS NULL OR e.paid = :paid) " +
            "AND (e.eventDate >= :currentTimestamp) " +
-           "AND (:onlyAvailable = false OR e.participantLimit > e.confirmedRequests)")
+           "AND (:onlyAvailable = false OR e.participantLimit == 0 OR e.participantLimit > e.confirmedRequests)")
     Page<Event> findEventsWithFiltersWithoutDate(
             @Param("text") String text,
             @Param("categories") List<Integer> categories,
