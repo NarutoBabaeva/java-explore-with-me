@@ -42,7 +42,7 @@ public class GuestEventsServiceImpl implements GuestEventsService {
         LocalDateTime start = parseDateTime(rangeStart).orElse(null);
         LocalDateTime end = parseDateTime(rangeEnd).orElse(null);
 
-        text = "%" + text + "%";
+        text = text != null ? "%" + text + "%" : "%";
 
         String sortField = sort == SortType.VIEWS ? "views" : "eventDate";
 
