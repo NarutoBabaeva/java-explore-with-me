@@ -42,13 +42,18 @@ public class GuestEventsServiceImpl implements GuestEventsService {
         LocalDateTime start = parseDateTime(rangeStart).orElse(null);
         LocalDateTime end = parseDateTime(rangeEnd).orElse(null);
 
+        text = "%" + text + "%";
+
         String sortField = sort == SortType.VIEWS ? "views" : "eventDate";
 
         Sort sortBy = Sort.by(sortField);
 
         Pageable pageable = PageRequest.of(from / size, size, sortBy);
 
-        Page<Event> events = eventRepository.findEventsWithFilters(text, categories, paid, start, end, onlyAvailable, pageable);
+        Page<Event> events = start == null || end == null ?
+                eventRepository.findEventsWithFiltersWithoutDate(text, categories, paid, onlyAvailable, LocalDateTime.now(), pageable)
+                :
+                eventRepository.findEventsWithFilters(text, categories, paid, start, end, onlyAvailable, pageable);
 
         statClient.recordHit(new HitDto("ewm-main-service",
                 request.getRequestURI(),
