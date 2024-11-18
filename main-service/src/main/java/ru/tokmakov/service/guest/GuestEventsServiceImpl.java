@@ -60,9 +60,12 @@ public class GuestEventsServiceImpl implements GuestEventsService {
                 request.getRemoteAddr(),
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
 
-        return events.stream()
+        List<EventShortDto> list = events.stream()
                 .map(EventMapper::toEventShortDto)
                 .toList();
+        if (list.isEmpty())
+            throw new BadRequestException("Event must be published");
+        return list;
     }
 
     @Override
