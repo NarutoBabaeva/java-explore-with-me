@@ -6,10 +6,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tokmakov.exception.BadRequestException;
+import ru.tokmakov.exception.EventStateException;
 import ru.tokmakov.exception.NotFoundException;
 import ru.tokmakov.dto.event.*;
 import org.springframework.stereotype.Service;
-import ru.tokmakov.exception.event.EventStateException;
 import ru.tokmakov.model.Event;
 import ru.tokmakov.repository.CategoryRepository;
 import ru.tokmakov.repository.EventRepository;
@@ -33,6 +33,9 @@ public class AdminEventsServiceImpl implements AdminEventsService {
     public List<EventFullDto> findEvents(Set<Long> users, Set<EventState> states, Set<Long> categories,
                                          String rangeStart, String rangeEnd, Integer from, Integer size) {
 
+        log.info("Finding events with parameters - users: {}, states: {}, categories: {}, rangeStart: {}, rangeEnd: {}, from: {}, size: {}",
+                users, states, categories, rangeStart, rangeEnd, from, size);
+
         LocalDateTime start;
         LocalDateTime end;
 
@@ -40,12 +43,16 @@ public class AdminEventsServiceImpl implements AdminEventsService {
         List<Event> events;
 
         if (rangeStart == null || rangeEnd == null) {
+            log.info("No date range provided, fetching events without date filter.");
             events = eventRepository.findByFiltersWithoutDate(users, states, categories, LocalDateTime.now(), pageable);
         } else {
             start = LocalDateTime.parse(rangeStart, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             end = LocalDateTime.parse(rangeEnd, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            log.info("Fetching events within date range: {} to {}", start, end);
             events = eventRepository.findByFilters(users, states, categories, start, end, pageable);
         }
+
+        log.info("Found {} events matching the criteria", events.size());
 
         return events.stream()
                 .map(EventMapper::toEventFullDto)

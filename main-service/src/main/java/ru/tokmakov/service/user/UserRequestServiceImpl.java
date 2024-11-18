@@ -10,7 +10,7 @@ import ru.tokmakov.dto.event.EventState;
 import ru.tokmakov.dto.participation.ParticipationRequestDto;
 import ru.tokmakov.dto.event.RequestStatus;
 import ru.tokmakov.dto.participation.ParticipationRequestMapper;
-import ru.tokmakov.exception.event.ConflictException;
+import ru.tokmakov.exception.ConflictException;
 import ru.tokmakov.model.Event;
 import ru.tokmakov.model.ParticipationRequest;
 import ru.tokmakov.model.User;

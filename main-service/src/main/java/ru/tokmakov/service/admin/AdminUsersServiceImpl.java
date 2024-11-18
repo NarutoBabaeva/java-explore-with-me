@@ -3,8 +3,8 @@ package ru.tokmakov.service.admin;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
+import ru.tokmakov.exception.ConflictException;
 import ru.tokmakov.exception.NotFoundException;
-import ru.tokmakov.exception.event.ConflictException;
 import ru.tokmakov.repository.UserRepository;
 import ru.tokmakov.dto.user.NewUserRequest;
 import ru.tokmakov.dto.user.UserDto;
@@ -58,6 +58,7 @@ public class AdminUsersServiceImpl implements AdminUsersService {
         return UserMapper.userToUserDto(savedUser);
     }
 
+    @Transactional
     @Override
     public void deleteUser(long userId) {
         log.info("Attempting to delete user with ID: {}", userId);
