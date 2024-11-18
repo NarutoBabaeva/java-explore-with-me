@@ -24,18 +24,22 @@ public class GuestCompilationsController {
                                                  @RequestParam(required = false, defaultValue = "0") Integer from,
                                                  @Min(value = 1, message = "The 'size' parameter must be 1 or greater")
                                                  @RequestParam(required = false, defaultValue = "10") Integer size) {
-        log.info("Fetching compilations with pinned: {}, from: {}, size: {}", pinned, from, size);
+        log.info("GET /compilations - Fetching compilations with parameters: pinned={}, from={}, size={}", pinned, from, size);
+
         List<CompilationDto> compilations = guestCompilationsService.findCompilations(pinned, from, size);
-        log.info("Fetched {} compilations", compilations.size());
+
+        log.info("GET /compilations - Found {} compilations", compilations.size());
         return compilations;
     }
 
     @GetMapping("{compId}")
     @ResponseStatus(HttpStatus.OK)
     public CompilationDto findCompilationsByCompId(@PathVariable Long compId) {
-        log.info("Fetching compilation by compId: {}", compId);
+        log.info("GET /compilations/{} - Fetching compilation details for compId={}", compId, compId);
+
         CompilationDto compilation = guestCompilationsService.findCompilationsByCompId(compId);
-        log.info("Fetched compilation: {}", compilation);
+
+        log.info("GET /compilations/{} - Compilation details fetched: {}", compId, compilation);
         return compilation;
     }
 }

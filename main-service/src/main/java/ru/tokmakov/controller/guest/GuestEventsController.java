@@ -31,12 +31,23 @@ public class GuestEventsController {
                                           @RequestParam(required = false, defaultValue = "0") int from,
                                           @RequestParam(required = false, defaultValue = "10") int size,
                                           HttpServletRequest request) {
-        return guestEventsService.findEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, request);
+        log.info("GET /events - Parameters: text={}, categories={}, paid={}, rangeStart={}, rangeEnd={}, onlyAvailable={}, sort={}, from={}, size={}, clientIP={}",
+                text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, request.getRemoteAddr());
+
+        List<EventShortDto> events = guestEventsService.findEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, request);
+
+        log.info("GET /events - Response: {} events found", events.size());
+        return events;
     }
 
     @GetMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
     public EventFullDto findEventById(@PathVariable long id, HttpServletRequest request) {
-        return guestEventsService.findEventById(id, request);
+        log.info("GET /events/{} - Request received from clientIP={}", id, request.getRemoteAddr());
+
+        EventFullDto event = guestEventsService.findEventById(id, request);
+
+        log.info("GET /events/{} - Response: {}", id, event);
+        return event;
     }
 }
