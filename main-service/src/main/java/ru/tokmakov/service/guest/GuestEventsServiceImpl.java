@@ -88,7 +88,7 @@ public class GuestEventsServiceImpl implements GuestEventsService {
 
     private Optional<LocalDateTime> parseDateTime(String dateTime) {
         try {
-            return dateTime != null ? Optional.of(LocalDateTime.parse(dateTime)) : Optional.empty();
+            return dateTime != null ? Optional.of(LocalDateTime.parse(dateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))) : Optional.empty();
         } catch (DateTimeParseException e) {
             throw new BadRequestException("Invalid date format: " + dateTime);
         }
