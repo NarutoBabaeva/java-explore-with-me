@@ -29,8 +29,8 @@ public class AdminEventsController {
                                          @RequestParam(required = false) Set<Long> categories,
                                          @RequestParam(required = false) String rangeStart,
                                          @RequestParam(required = false) String rangeEnd,
-                                         @Min(0) @RequestParam(required = false, defaultValue = "0") int from,
-                                         @Min(1) @RequestParam(required = false, defaultValue = "10") int size) {
+                                         @Min(0) @RequestParam(required = false, defaultValue = "0") Integer from,
+                                         @Min(1) @RequestParam(required = false, defaultValue = "10") Integer size) {
         return adminEventsService.findEvents(users, states, categories, rangeStart, rangeEnd, from, size);
     }
 

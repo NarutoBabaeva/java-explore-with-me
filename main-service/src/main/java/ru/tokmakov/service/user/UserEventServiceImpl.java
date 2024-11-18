@@ -81,10 +81,7 @@ public class UserEventServiceImpl implements UserEventService {
         });
 
         LocalDateTime eventDate = LocalDateTime.parse(newEventDto.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        if (eventDate.isBefore(LocalDateTime.now())) {
-            log.error("Event date {} is invalid, it must be in the future", newEventDto.getEventDate());
-            throw new OperationPreconditionFailedException("Event date must be in the future");
-        }
+
         if (eventDate.plusHours(2).isBefore(LocalDateTime.now())) {
             log.error("Event date {} is invalid, the event cannot occur earlier than two hours from the current moment", newEventDto.getEventDate());
             throw new OperationPreconditionFailedException("Event cannot occur earlier than two hours from the current moment");

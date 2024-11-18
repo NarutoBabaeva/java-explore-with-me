@@ -31,7 +31,7 @@ public class AdminEventsServiceImpl implements AdminEventsService {
     @Override
     @Transactional(readOnly = true)
     public List<EventFullDto> findEvents(Set<Long> users, Set<EventState> states, Set<Long> categories,
-                                         String rangeStart, String rangeEnd, int from, int size) {
+                                         String rangeStart, String rangeEnd, Integer from, Integer size) {
 
         LocalDateTime start;
         LocalDateTime end;
