@@ -49,7 +49,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             Pageable pageable);
 
     @Query("SELECT e FROM Event e WHERE (e.id IN :eventIds)")
-    Set<Event> findAllByIds(Set<Long> eventIds);
+    List<Event> findAllByIds(List<Long> eventIds);
 
     @Query("SELECT e FROM Event e " +
            "WHERE e.state = 'PUBLISHED' " +

@@ -14,9 +14,8 @@ import ru.tokmakov.model.Compilation;
 import ru.tokmakov.model.Event;
 import ru.tokmakov.repository.EventRepository;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @Service
@@ -27,20 +26,20 @@ public class AdminCompilationsServiceImpl implements AdminCompilationsService {
 
     @Override
     public CompilationDto saveCompilations(NewCompilationDto newCompilationDto) {
+        if (compilationRepository.existsByTitle(newCompilationDto.getTitle())) {
+            throw new TitleAlreadyExistsException("title " + newCompilationDto.getTitle() + " already exists");
+        }
+
         Compilation compilation = new Compilation();
         compilation.setTitle(newCompilationDto.getTitle());
         compilation.setPinned(newCompilationDto.getPinned() != null ? newCompilationDto.getPinned() : false);
 
-        if (newCompilationDto.getEvents() != null && !newCompilationDto.getEvents().isEmpty()) {
-            Set<Event> events = eventRepository.findAllByIds(newCompilationDto.getEvents());
-            compilation.setEvents(events);
-        } else {
-            compilation.setEvents(new HashSet<>());
-        }
-
-        if (compilationRepository.existsByTitle(compilation.getTitle())) {
-            throw new TitleAlreadyExistsException("title " + compilation.getTitle() + " already exists");
-        }
+        List<Event> events = eventRepository.findAllByIds(newCompilationDto.getEvents());
+        compilation.setEvents(events != null ? events : new ArrayList<>());
+//        if (newCompilationDto.getEvents() == null || newCompilationDto.getEvents().isEmpty()) {
+//            compilation.setEvents(new ArrayList<>());
+//        } else {
+//        }
 
         Compilation savedCompilation = compilationRepository.save(compilation);
 
@@ -71,7 +70,7 @@ public class AdminCompilationsServiceImpl implements AdminCompilationsService {
             if (events.size() != newCompilationDto.getEvents().size()) {
                 throw new NotFoundException("Some events in the list were not found");
             }
-            compilation.setEvents(new HashSet<>(events));
+            compilation.setEvents(events);
         }
 
         compilation = compilationRepository.save(compilation);
