@@ -84,7 +84,7 @@ public class UserEventServiceImpl implements UserEventService {
 
         if (eventDate.plusHours(2).isBefore(LocalDateTime.now())) {
             log.error("Event date {} is invalid, the event cannot occur earlier than two hours from the current moment", newEventDto.getEventDate());
-            throw new OperationPreconditionFailedException("Event cannot occur earlier than two hours from the current moment");
+            throw new BadRequestException("Event cannot occur earlier than two hours from the current moment");
         }
 
         Event event = EventMapper.newEventDtoToEvent(newEventDto);
