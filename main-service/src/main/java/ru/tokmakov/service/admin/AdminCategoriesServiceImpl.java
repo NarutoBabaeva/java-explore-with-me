@@ -2,6 +2,7 @@ package ru.tokmakov.service.admin;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 import ru.tokmakov.exception.NotFoundException;
 import ru.tokmakov.dto.category.CategoryDto;
 import ru.tokmakov.dto.category.CategoryMapper;
@@ -21,6 +22,7 @@ public class AdminCategoriesServiceImpl implements AdminCategoriesService {
     private final EventRepository eventRepository;
 
     @Override
+    @Transactional
     public CategoryDto saveCategory(NewCategoryDto newCategoryDto) {
         log.info("Attempting to save new category: {}", newCategoryDto);
 
@@ -39,6 +41,7 @@ public class AdminCategoriesServiceImpl implements AdminCategoriesService {
     }
 
     @Override
+    @Transactional
     public void deleteCategory(Long catId) {
         log.info("Attempting to delete category with ID: {}", catId);
 
@@ -57,6 +60,7 @@ public class AdminCategoriesServiceImpl implements AdminCategoriesService {
     }
 
     @Override
+    @Transactional
     public CategoryDto updateCategory(Long catId, NewCategoryDto newCategoryDto) {
         log.info("Starting update for category with ID: {}. New data: {}", catId, newCategoryDto);
 

@@ -6,22 +6,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.transaction.annotation.Transactional;
 import ru.tokmakov.dto.participation.ParticipationRequestDto;
 import ru.tokmakov.dto.participation.ParticipationRequestMapper;
 import ru.tokmakov.exception.BadRequestException;
 import ru.tokmakov.exception.NotFoundException;
+import ru.tokmakov.exception.OperationPreconditionFailedException;
 import ru.tokmakov.exception.event.ConflictException;
 import ru.tokmakov.repository.CategoryRepository;
 import ru.tokmakov.repository.UserRepository;
 import ru.tokmakov.dto.event.*;
 import org.springframework.stereotype.Service;
-import ru.tokmakov.exception.event.EventStateException;
-import ru.tokmakov.exception.ForbiddenAccessException;
 import ru.tokmakov.model.Category;
 import ru.tokmakov.model.Event;
 import ru.tokmakov.model.ParticipationRequest;
 import ru.tokmakov.model.User;
-import ru.tokmakov.exception.event.EventDateNotValidException;
 import ru.tokmakov.repository.EventRepository;
 import ru.tokmakov.repository.RequestRepository;
 
@@ -41,7 +40,8 @@ public class UserEventServiceImpl implements UserEventService {
     private final RequestRepository requestRepository;
 
     @Override
-    public List<EventShortDto> findEventsAddedByUser(Long userId, int from, int size) {
+    @Transactional(readOnly = true)
+    public List<EventShortDto> findEventsAddedByUser(Long userId, Integer from, Integer size) {
         log.info("Finding events added by user with ID: {}. Pagination - from: {}, size: {}", userId, from, size);
 
         userRepository.findById(userId).orElseThrow(() -> {
@@ -66,6 +66,7 @@ public class UserEventServiceImpl implements UserEventService {
 
 
     @Override
+    @Transactional
     public EventFullDto saveEvent(Long userId, NewEventDto newEventDto) {
         log.info("Attempting to save event for userId: {}, with data: {}", userId, newEventDto);
 
@@ -74,29 +75,25 @@ public class UserEventServiceImpl implements UserEventService {
             return new NotFoundException("User with id " + userId + " not found");
         });
 
-        log.debug("Found user: {}", user);
-
         Category category = categoryRepository.findById(newEventDto.getCategory()).orElseThrow(() -> {
             log.error("Category with id {} not found", newEventDto.getCategory());
             return new NotFoundException("Category with id " + newEventDto.getCategory() + " not found");
         });
 
-        log.debug("Found category: {}", category);
-
         LocalDateTime eventDate = LocalDateTime.parse(newEventDto.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         if (eventDate.isBefore(LocalDateTime.now())) {
             log.error("Event date {} is invalid, it must be in the future", newEventDto.getEventDate());
-            throw new EventDateNotValidException("Event date must be in the future");
+            throw new OperationPreconditionFailedException("Event date must be in the future");
         }
-
-        log.debug("Validated event date: {}", eventDate);
+        if (eventDate.plusHours(2).isBefore(LocalDateTime.now())) {
+            log.error("Event date {} is invalid, the event cannot occur earlier than two hours from the current moment", newEventDto.getEventDate());
+            throw new OperationPreconditionFailedException("Event cannot occur earlier than two hours from the current moment");
+        }
 
         Event event = EventMapper.newEventDtoToEvent(newEventDto);
         event.setCategory(category);
         event.setEventDate(eventDate);
         event.setInitiator(user);
-
-        log.debug("Event object created: {}", event);
 
         Event savedEvent = eventRepository.save(event);
 
@@ -106,6 +103,7 @@ public class UserEventServiceImpl implements UserEventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EventFullDto findEvent(Long userId, Long eventId) {
         log.info("Received request to find event with ID: {} for user with ID: {}", eventId, userId);
 
@@ -121,24 +119,20 @@ public class UserEventServiceImpl implements UserEventService {
     }
 
     @Override
+    @Transactional
     public EventFullDto updateEvent(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest) {
         log.info("Start updating event. User ID: {}, Event ID: {}", userId, eventId);
 
-        Event event = eventRepository.findById(eventId)
+        Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> {
                     log.error("Event with id={} not found", eventId);
                     return new NotFoundException("Event with id=" + eventId + " was not found");
                 });
 
-        if (!event.getInitiator().getId().equals(userId)) {
-            log.error("User with id={} is not the initiator of the event with id={}", userId, eventId);
-            throw new ForbiddenAccessException("User with id=" + userId + " is not the initiator of this event.");
-        }
-
         log.info("Event state: {}", event.getState());
-        if (!event.getState().equals(EventState.PENDING) && !event.getState().equals(EventState.CANCELED)) {
-            log.error("Event with id={} cannot be changed because it is neither PENDING nor CANCELED", eventId);
-            throw new EventStateException("Only pending or canceled events can be changed.");
+        if (event.getState() != EventState.PENDING && event.getState() != EventState.CANCELED) {
+            log.error("Event with id={} cannot be changed because it is neither PENDING or CANCELED", eventId);
+            throw new OperationPreconditionFailedException("Only pending or canceled events can be changed");
         }
 
         log.info("Updating event details for event ID: {}", eventId);
@@ -188,36 +182,49 @@ public class UserEventServiceImpl implements UserEventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ParticipationRequestDto> findParticipation(Long userId, Long eventId) {
-        userRepository.findById(userId).orElseThrow(() ->
-                new NotFoundException("User with id=" + userId + " not found"));
+        log.info("Fetching participation requests for userId: {}, eventId: {}", userId, eventId);
 
-        eventRepository.findById(eventId).orElseThrow(() ->
-                new NotFoundException("Event with id=" + eventId + " not found"));
+        userRepository.findById(userId).orElseThrow(() -> {
+            log.error("User with id={} not found", userId);
+            return new NotFoundException("User with id=" + userId + " not found");
+        });
+
+        eventRepository.findById(eventId).orElseThrow(() -> {
+            log.error("Event with id={} not found", eventId);
+            return new NotFoundException("Event with id=" + eventId + " not found");
+        });
 
         List<ParticipationRequest> requests = requestRepository.findAllByEventIdAndRequesterId(eventId, userId);
 
-        return requests.stream()
+        List<ParticipationRequestDto> requestDtos = requests.stream()
                 .map(ParticipationRequestMapper::toParticipationRequestDto)
                 .collect(Collectors.toList());
+        log.info("Returning {} participation requests for userId={} and eventId={}", requestDtos.size(), userId, eventId);
+
+        return requestDtos;
     }
 
     @Override
+    @Transactional
     public EventRequestStatusUpdateResult updateParticipation(Long userId, Long eventId, EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) {
-        Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
-                .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " not found or not accessible"));
+        log.info("Received request to update participation for userId={} and eventId={}", userId, eventId);
 
-        if (event.getParticipantLimit() == 0 || !event.getRequestModeration()) {
-            throw new ConflictException("No moderation required or participant limit is zero for this event");
-        }
+        Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
+                .orElseThrow(() -> {
+                    log.error("Event with id={} not found or not accessible for userId={}", eventId, userId);
+                    return new NotFoundException("Event with id=" + eventId + " not found or not accessible");
+                });
+
+        log.info("Found event: {} with participant limit {}", eventId, event.getParticipantLimit());
 
         List<ParticipationRequest> requests = requestRepository.findAllById(eventRequestStatusUpdateRequest.getRequestIds());
-        if (requests.isEmpty()) {
-            throw new NotFoundException("No requests found for the provided IDs");
-        }
+        log.info("Processing {} requests for eventId={}", requests.size(), eventId);
 
         for (ParticipationRequest request : requests) {
             if (!request.getStatus().equals(RequestStatus.PENDING)) {
+                log.warn("Request with id={} has status {} instead of PENDING", request.getId(), request.getStatus());
                 throw new ConflictException("Request must have status PENDING");
             }
         }
@@ -227,38 +234,48 @@ public class UserEventServiceImpl implements UserEventService {
         int confirmedCount = event.getConfirmedRequests();
 
         for (ParticipationRequest request : requests) {
+            log.info("Processing request with id={} for status {}", request.getId(), eventRequestStatusUpdateRequest.getStatus());
+
             if (eventRequestStatusUpdateRequest.getStatus().equals(RequestStatus.CONFIRMED)) {
-                if (confirmedCount < event.getParticipantLimit()) {
+                if (event.getParticipantLimit() == 0 || event.getRequestModeration()) {
+                    if (event.getParticipantLimit() != 0 && confirmedCount >= event.getParticipantLimit()) {
+                        log.error("Participant limit reached for eventId={} (confirmedCount={})", eventId, confirmedCount);
+                        throw new ConflictException("The participant limit has been reached");
+                    }
                     request.setStatus(RequestStatus.CONFIRMED);
                     confirmedRequests.add(request);
                     confirmedCount++;
+                    log.info("Request with id={} confirmed for eventId={}", request.getId(), eventId);
+                } else if (confirmedCount < event.getParticipantLimit()) {
+                    confirmedRequests.add(request);
+                    confirmedCount++;
+                    log.info("Request with id={} confirmed for eventId={} (confirmedCount={})", request.getId(), eventId, confirmedCount);
                 } else {
-                    request.setStatus(RequestStatus.REJECTED);
-                    rejectedRequests.add(request);
+                    log.error("Participant limit reached for eventId={} (confirmedCount={})", eventId, confirmedCount);
+                    throw new ConflictException("The participant limit has been reached");
                 }
             } else if (eventRequestStatusUpdateRequest.getStatus().equals(RequestStatus.REJECTED)) {
                 request.setStatus(RequestStatus.REJECTED);
                 rejectedRequests.add(request);
-            }
-        }
-
-        if (confirmedCount >= event.getParticipantLimit()) {
-            List<ParticipationRequest> pendingRequests = requestRepository.findAllByEventIdAndStatus(eventId, RequestStatus.PENDING);
-            for (ParticipationRequest request : pendingRequests) {
-                request.setStatus(RequestStatus.REJECTED);
-                rejectedRequests.add(request);
+                log.info("Request with id={} rejected for eventId={}", request.getId(), eventId);
             }
         }
 
         requestRepository.saveAll(confirmedRequests);
         requestRepository.saveAll(rejectedRequests);
+        log.info("Saved {} confirmed and {} rejected requests for eventId={}", confirmedRequests.size(), rejectedRequests.size(), eventId);
 
         event.setConfirmedRequests(confirmedCount);
         eventRepository.save(event);
+        log.info("Updated confirmed requests count to {} for eventId={}", confirmedCount, eventId);
 
-        return new EventRequestStatusUpdateResult(
+        EventRequestStatusUpdateResult result = new EventRequestStatusUpdateResult(
                 confirmedRequests.stream().map(ParticipationRequestMapper::toParticipationRequestDto).toList(),
                 rejectedRequests.stream().map(ParticipationRequestMapper::toParticipationRequestDto).toList()
         );
+
+        log.info("Returning result for eventId={} with {} confirmed and {} rejected requests", eventId, confirmedRequests.size(), rejectedRequests.size());
+
+        return result;
     }
 }

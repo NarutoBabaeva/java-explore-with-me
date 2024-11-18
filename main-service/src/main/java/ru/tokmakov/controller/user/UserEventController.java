@@ -22,9 +22,9 @@ public class UserEventController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<EventShortDto> findEventsAddedByUser(@PathVariable long userId,
-                                                     @RequestParam(required = false, defaultValue = "0") int from,
-                                                     @RequestParam(required = false, defaultValue = "10") int size) {
+    public List<EventShortDto> findEventsAddedByUser(@PathVariable Long userId,
+                                                     @RequestParam(required = false, defaultValue = "0") Integer from,
+                                                     @RequestParam(required = false, defaultValue = "10") Integer size) {
         log.info("Received request to find events added by user with ID: {}. Pagination - from: {}, size: {}", userId, from, size);
         List<EventShortDto> eventShortDtos = userEventService.findEventsAddedByUser(userId, from, size);
         log.info("Found {} events for user with ID: {}", eventShortDtos.size(), userId);
@@ -42,7 +42,7 @@ public class UserEventController {
 
     @GetMapping("/{eventId}")
     @ResponseStatus(HttpStatus.OK)
-    public EventFullDto findEvent(@PathVariable long userId, @PathVariable long eventId) {
+    public EventFullDto findEvent(@PathVariable Long userId, @PathVariable Long eventId) {
         log.info("Received request to find event with ID: {} for user with ID: {}", eventId, userId);
 
         EventFullDto eventFullDto = userEventService.findEvent(userId, eventId);
@@ -64,8 +64,11 @@ public class UserEventController {
 
     @GetMapping("/{eventId}/requests")
     @ResponseStatus(HttpStatus.OK)
-    public List<ParticipationRequestDto> findParticipation(@PathVariable long userId, @PathVariable long eventId) {
-        return userEventService.findParticipation(userId, eventId);
+    public List<ParticipationRequestDto> findParticipation(@PathVariable Long userId, @PathVariable Long eventId) {
+        log.info("Received request to find participation for userId={} and eventId={}", userId, eventId);
+        List<ParticipationRequestDto> participationRequests = userEventService.findParticipation(userId, eventId);
+        log.info("Successfully retrieved {} participation requests for userId={} and eventId={}", participationRequests.size(), userId, eventId);
+        return participationRequests;
     }
 
     @PatchMapping("/{eventId}/requests")
@@ -73,6 +76,14 @@ public class UserEventController {
     public EventRequestStatusUpdateResult updateParticipation(@PathVariable Long userId,
                                                               @PathVariable Long eventId,
                                                               @Validated @NotNull @RequestBody EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) {
-        return userEventService.updateParticipation(userId, eventId, eventRequestStatusUpdateRequest);
+        log.info("Received request to update participation for userId={} and eventId={} with status update request: {}",
+                userId, eventId, eventRequestStatusUpdateRequest);
+        EventRequestStatusUpdateResult result = userEventService.updateParticipation(userId, eventId, eventRequestStatusUpdateRequest);
+        log.info("Successfully updated participation for userId={} and eventId={}. " +
+                 "Confirmed requests: {}, Rejected requests: {}",
+                userId, eventId,
+                result.getConfirmedRequests().size(),
+                result.getRejectedRequests().size());
+        return result;
     }
 }

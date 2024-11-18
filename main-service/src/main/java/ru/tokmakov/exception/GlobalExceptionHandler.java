@@ -12,7 +12,6 @@ import ru.tokmakov.dto.ErrorResponse;
 import ru.tokmakov.exception.category.CategoryNotEmptyException;
 import ru.tokmakov.exception.compilation.TitleAlreadyExistsException;
 import ru.tokmakov.exception.event.ConflictException;
-import ru.tokmakov.exception.event.EventDateNotValidException;
 import ru.tokmakov.exception.event.EventStateException;
 import ru.tokmakov.exception.user.EmailAlreadyExistsException;
 
@@ -34,7 +33,7 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler({EmailAlreadyExistsException.class, EventDateNotValidException.class})
+    @ExceptionHandler({EmailAlreadyExistsException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleDataIntegrityViolationException(RuntimeException e) {
         return new ErrorResponse(
@@ -61,6 +60,17 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleConflictException(RuntimeException e) {
         return new ErrorResponse(
                 "CONFLICT",
+                "For the requested operation the conditions are not met.",
+                e.getMessage(),
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        );
+    }
+
+    @ExceptionHandler({OperationPreconditionFailedException.class})
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleForbiddenException(RuntimeException e) {
+        return new ErrorResponse(
+                "FORBIDDEN",
                 "For the requested operation the conditions are not met.",
                 e.getMessage(),
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
