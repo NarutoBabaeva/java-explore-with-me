@@ -42,15 +42,13 @@ public class GuestCompilationsServiceImpl implements GuestCompilationsService {
     @Transactional(readOnly = true)
     public CompilationDto findCompilationsByCompId(Long compId) {
         log.info("Fetching compilation by compId: {}", compId);
-        Compilation compilation;
-        try {
-            compilation = compilationRepository.findById(compId)
-                    .orElseThrow(() -> new NotFoundException("Compilation with id=" + compId + " was not found"));
-            log.info("Compilation with id={} found: {}", compId, compilation);
-        } catch (NotFoundException e) {
-            log.error("Compilation with id={} not found", compId, e);
-            throw e;
-        }
+        Compilation compilation = compilationRepository.findById(compId)
+                .orElseThrow(() -> {
+                    log.error("Compilation with id={} not found", compId);
+                    return new NotFoundException("Compilation with id=" + compId + " was not found");
+                });
+
+        log.info("Compilation with id={} found: {}", compId, compilation);
 
         CompilationDto compilationDto = CompilationMapper.toCompilationDto(compilation);
         log.info("Converted compilation to DTO: {}", compilationDto);
