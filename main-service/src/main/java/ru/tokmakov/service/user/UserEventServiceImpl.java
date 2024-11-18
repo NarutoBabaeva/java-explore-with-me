@@ -220,7 +220,7 @@ public class UserEventServiceImpl implements UserEventService {
         log.info("Processing {} requests for eventId={}", requests.size(), eventId);
 
         for (ParticipationRequest request : requests) {
-            if (request.getStatus() != RequestStatus.PENDING && (request.getStatus() == RequestStatus.CONFIRMED && request.getEvent().getParticipantLimit() == 0)) {
+            if (request.getStatus() != RequestStatus.PENDING && !(request.getStatus() == RequestStatus.CONFIRMED && request.getEvent().getParticipantLimit() == 0)) {
                 log.warn("Request with id={} has status {} instead of PENDING", request.getId(), request.getStatus());
                 throw new ConflictException("Request must have status PENDING");
             }
