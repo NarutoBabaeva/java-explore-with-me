@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import ru.tokmakov.dto.ErrorResponse;
-import ru.tokmakov.exception.category.CategoryNameAlreadyExistsException;
 import ru.tokmakov.exception.category.CategoryNotEmptyException;
 import ru.tokmakov.exception.compilation.TitleAlreadyExistsException;
 import ru.tokmakov.exception.event.ConflictException;
@@ -35,7 +34,7 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler({CategoryNameAlreadyExistsException.class, EmailAlreadyExistsException.class, EventDateNotValidException.class})
+    @ExceptionHandler({EmailAlreadyExistsException.class, EventDateNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleDataIntegrityViolationException(RuntimeException e) {
         return new ErrorResponse(
