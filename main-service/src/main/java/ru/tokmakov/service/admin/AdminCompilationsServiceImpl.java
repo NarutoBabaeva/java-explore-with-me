@@ -3,7 +3,7 @@ package ru.tokmakov.service.admin;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
-import ru.tokmakov.exception.compilation.TitleAlreadyExistsException;
+import ru.tokmakov.exception.TitleAlreadyExistsException;
 import ru.tokmakov.repository.CompilationRepository;
 import ru.tokmakov.dto.complation.CompilationDto;
 import ru.tokmakov.dto.complation.CompilationMapper;

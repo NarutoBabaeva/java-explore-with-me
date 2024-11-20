@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import ru.tokmakov.dto.ErrorResponse;
-import ru.tokmakov.exception.compilation.TitleAlreadyExistsException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -17,10 +16,16 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler({MethodArgumentNotValidException.class, MethodArgumentTypeMismatchException.class, BadRequestException.class, MissingServletRequestParameterException.class})
-    public ErrorResponse handleInvalidArgument(Exception e) {
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler({
+            MethodArgumentNotValidException.class,
+            MethodArgumentTypeMismatchException.class,
+            BadRequestException.class,
+            MissingServletRequestParameterException.class
+    })
+    public ErrorResponse handleInvalidArgument(Exception e) {
+        log.error("Handled BAD_REQUEST exception: {}", e.getMessage(), e);
         return new ErrorResponse(
                 "BAD_REQUEST",
                 "Incorrectly made request.",
@@ -32,6 +37,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({NotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleUserNotFoundException(RuntimeException e) {
+        log.error("Handled NOT_FOUND exception: {}", e.getMessage(), e);
         return new ErrorResponse(
                 "NOT_FOUND",
                 "The required object was not found.",
@@ -40,9 +46,16 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler({EventStateException.class, CategoryNotEmptyException.class, ConflictException.class, TitleAlreadyExistsException.class, ForbiddenAccessException.class})
+    @ExceptionHandler({
+            EventStateException.class,
+            CategoryNotEmptyException.class,
+            ConflictException.class,
+            TitleAlreadyExistsException.class,
+            ForbiddenAccessException.class
+    })
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleConflictException(RuntimeException e) {
+        log.error("Handled CONFLICT exception: {}", e.getMessage(), e);
         return new ErrorResponse(
                 "CONFLICT",
                 "For the requested operation the conditions are not met.",
@@ -54,6 +67,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({OperationPreconditionFailedException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleForbiddenException(RuntimeException e) {
+        log.error("Handled FORBIDDEN exception: {}", e.getMessage(), e);
         return new ErrorResponse(
                 "FORBIDDEN",
                 "For the requested operation the conditions are not met.",
