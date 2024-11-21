@@ -43,13 +43,13 @@ public class GuestCategoriesServiceImpl implements GuestCategoriesService {
 
     @Override
     @Transactional(readOnly = true)
-    public CategoryDto findCategoryById(int catId) {
+    public CategoryDto findCategoryById(Long catId) {
         log.info("Fetching category with id={}", catId);
 
         Category category = categoryRepository.findById(catId)
                 .orElseThrow(() -> {
                     log.error("Category with id={} not found", catId);
-                    return new NotFoundException("Category with id=" + catId + " was not found");
+                    return new NotFoundException("Category with id:" + catId + " not found");
                 });
 
         log.info("Category with id={} found: {}", catId, category);

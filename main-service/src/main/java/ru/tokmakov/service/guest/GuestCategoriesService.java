@@ -7,5 +7,5 @@ import java.util.List;
 public interface GuestCategoriesService {
     List<CategoryDto> findCategories(int from, int size);
 
-    CategoryDto findCategoryById(int catId);
+    CategoryDto findCategoryById(Long catId);
 }

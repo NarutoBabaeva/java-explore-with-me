@@ -46,7 +46,7 @@ public class UserEventServiceImpl implements UserEventService {
 
         userRepository.findById(userId).orElseThrow(() -> {
             log.error("User with ID: {} not found", userId);
-            return new NotFoundException("User with id " + userId + " not found");
+            return new NotFoundException("User with id: " + userId + " not found");
         });
 
         Pageable pageable = PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "eventDate"));
@@ -72,12 +72,12 @@ public class UserEventServiceImpl implements UserEventService {
 
         User user = userRepository.findById(userId).orElseThrow(() -> {
             log.error("User with id {} not found", userId);
-            return new NotFoundException("User with id " + userId + " not found");
+            return new NotFoundException("User with id: " + userId + " not found");
         });
 
         Category category = categoryRepository.findById(newEventDto.getCategory()).orElseThrow(() -> {
             log.error("Category with id {} not found", newEventDto.getCategory());
-            return new NotFoundException("Category with id " + newEventDto.getCategory() + " not found");
+            return new NotFoundException("Category with id=" + newEventDto.getCategory() + " not found");
         });
 
         LocalDateTime eventDate = LocalDateTime.parse(newEventDto.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
@@ -105,7 +105,7 @@ public class UserEventServiceImpl implements UserEventService {
         log.info("Received request to find event with ID: {} for user with ID: {}", eventId, userId);
 
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
-                .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
+                .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " not found"));
 
         log.info("Event with ID: {} found for user with ID: {}", eventId, userId);
 
@@ -123,7 +123,7 @@ public class UserEventServiceImpl implements UserEventService {
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> {
                     log.error("Event with id={} not found", eventId);
-                    return new NotFoundException("Event with id=" + eventId + " was not found");
+                    return new NotFoundException("Event with id=" + eventId + " not found");
                 });
 
         log.info("Event state: {}", event.getState());
@@ -145,7 +145,7 @@ public class UserEventServiceImpl implements UserEventService {
             event.setAnnotation(updateEventUserRequest.getAnnotation());
         if (updateEventUserRequest.getCategory() != null)
             event.setCategory(categoryRepository.findById(updateEventUserRequest.getCategory()).orElseThrow(
-                    () -> new NotFoundException("Category with id=" + updateEventUserRequest.getCategory() + " was not found")
+                    () -> new NotFoundException("Category with id=" + updateEventUserRequest.getCategory() + " not found")
             ));
         if (updateEventUserRequest.getDescription() != null)
             event.setDescription(updateEventUserRequest.getDescription());
@@ -211,7 +211,7 @@ public class UserEventServiceImpl implements UserEventService {
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> {
                     log.error("Event with id={} not found or not accessible for userId={}", eventId, userId);
-                    return new NotFoundException("Event with id=" + eventId + " not found or not accessible");
+                    return new NotFoundException("Event with id=" + eventId + " not found");
                 });
 
         log.info("Found event: {} with participant limit {}", eventId, event.getParticipantLimit());

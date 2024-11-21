@@ -30,7 +30,7 @@ public class GuestCategoriesController {
 
     @GetMapping("/{catId}")
     @ResponseStatus(HttpStatus.OK)
-    public CategoryDto findCategoryById(@PathVariable int catId) {
+    public CategoryDto findCategoryById(@PathVariable Long catId) {
         log.info("GET /categories/{} - Request received", catId);
 
         CategoryDto category = guestCategoriesService.findCategoryById(catId);
