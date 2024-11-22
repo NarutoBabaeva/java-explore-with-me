@@ -64,7 +64,7 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler({OperationPreconditionFailedException.class})
+    @ExceptionHandler({OperationPreconditionFailedException.class, ForbiddenException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleForbiddenException(RuntimeException e) {
         log.error("Handled FORBIDDEN exception: {}", e.getMessage(), e);

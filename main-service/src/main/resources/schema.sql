@@ -50,3 +50,13 @@ CREATE TABLE IF NOT EXISTS participations (
                                 CONSTRAINT fk_event FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
                                 CONSTRAINT fk_requester FOREIGN KEY (requester_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS comments (
+                          id BIGSERIAL PRIMARY KEY,
+                          user_id BIGINT NOT NULL,
+                          event_id BIGINT NOT NULL,
+                          content VARCHAR(150) NOT NULL,
+                          created_on TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                          CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+                          CONSTRAINT fk_event FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE
+);

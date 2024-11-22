@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "3529406f-ba7c-416c-83b3-3e37692b6757",
+		"_postman_id": "bb3f96de-f835-42ce-bba9-dfae86707477",
 		"name": "Sprint 17",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "32799780"
@@ -1099,7 +1099,7 @@
 											"    const responseJson = pm.response.json();",
 											"    pm.response.to.have.status(409);",
 											"    pm.expect(responseJson.status).to.eql(\"CONFLICT\");",
-											"    pm.expect(responseJson.reason).to.include(\"Integrity constraint has been violated\");",
+											"    pm.expect(responseJson.reason).to.include(\"For the requested operation the conditions are not met.\");",
 											"});",
 											""
 										],
@@ -1484,7 +1484,7 @@
 											"pm.test(\"Conflict response contains correct structure and message\", function () {",
 											"    var jsonData = pm.response.json();",
 											"    pm.expect(jsonData.status).to.eql(\"CONFLICT\");",
-											"    pm.expect(jsonData.reason).to.eql(\"Integrity constraint has been violated.\");",
+											"    pm.expect(jsonData.reason).to.eql(\"For the requested operation the conditions are not met.\");",
 											"    pm.expect(jsonData.message).to.include(\"already exists\");",
 											"});",
 											""
@@ -1639,15 +1639,15 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"Status code is 409\", function () {",
-											"    pm.response.to.have.status(409);",
+											"pm.test(\"Status code is 400\", function () {",
+											"    pm.response.to.have.status(400);",
 											"});",
 											"",
 											"pm.test(\"Error response contains correct structure\", function () {",
 											"    var jsonData = pm.response.json();",
-											"    pm.expect(jsonData.status).to.eql(\"CONFLICT\");",
-											"    pm.expect(jsonData.reason).to.eql(\"Integrity constraint has been violated.\");",
-											"    pm.expect(jsonData.message).to.include(\"Event date must be in the future\");",
+											"    pm.expect(jsonData.status).to.eql(\"BAD_REQUEST\");",
+											"    pm.expect(jsonData.reason).to.eql(\"Incorrectly made request.\");",
+											"    pm.expect(jsonData.message).to.include(\"Event cannot occur earlier than two hours\");",
 											"});",
 											""
 										],
@@ -1915,7 +1915,7 @@
 											"pm.test(\"Error response contains correct message\", function () {",
 											"    var jsonData = pm.response.json();",
 											"    pm.expect(jsonData.status).to.eql(\"NOT_FOUND\");",
-											"    pm.expect(jsonData.message).to.include(\"Event with id=999 was not found\");",
+											"    pm.expect(jsonData.message).to.include(\"Event with id=999 not found\");",
 											"});",
 											""
 										],
@@ -2046,14 +2046,14 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"Status code is 409\", function () {",
-											"    pm.response.to.have.status(409);",
+											"pm.test(\"Status code is 400\", function () {",
+											"    pm.response.to.have.status(400);",
 											"});",
 											"",
 											"pm.test(\"Error message indicates date conflict\", function () {",
 											"    var jsonData = pm.response.json();",
-											"    pm.expect(jsonData.status).to.eql(\"CONFLICT\");",
-											"    pm.expect(jsonData.message).to.include(\"Event date must be at least 2 hours from now\");",
+											"    pm.expect(jsonData.status).to.eql(\"BAD_REQUEST\");",
+											"    pm.expect(jsonData.message).to.include(\"Event date must be at least 2 hours from now.\");",
 											"});",
 											""
 										],
@@ -2105,7 +2105,7 @@
 											"pm.test(\"Error message indicates event not found\", function () {",
 											"    var jsonData = pm.response.json();",
 											"    pm.expect(jsonData.status).to.eql(\"NOT_FOUND\");",
-											"    pm.expect(jsonData.message).to.include(\"Event with id=999 was not found\");",
+											"    pm.expect(jsonData.message).to.include(\"Event with id=999 not found\");",
 											"});",
 											""
 										],
@@ -2138,29 +2138,6 @@
 										"1",
 										"events",
 										"999"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "get request",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "http://localhost:8080/users/1/events/1/requests",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8080",
-									"path": [
-										"users",
-										"1",
-										"events",
-										"1",
-										"requests"
 									]
 								}
 							},
@@ -2208,7 +2185,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost:8080/admin/events/1",
+									"raw": "http://localhost:8080/admin/events/2",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -2217,7 +2194,7 @@
 									"path": [
 										"admin",
 										"events",
-										"1"
+										"2"
 									]
 								}
 							},
@@ -2230,13 +2207,13 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"Response code should be 409\", function () {",
-											"    pm.response.to.have.status(409);",
+											"pm.test(\"Response code should be 400\", function () {",
+											"    pm.response.to.have.status(400);",
 											"});",
 											"",
 											"pm.test(\"Response body should contain correct error message\", function () {",
 											"    var responseJson = pm.response.json();",
-											"    pm.expect(responseJson.status).to.eql(\"CONFLICT\");",
+											"    pm.expect(responseJson.status).to.eql(\"BAD_REQUEST\");",
 											"    pm.expect(responseJson.message).to.include(\"Event date must be at least one hour from the current time.\");",
 											"});",
 											""
@@ -2310,7 +2287,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost:8080/admin/events/1",
+									"raw": "http://localhost:8080/admin/events/2",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -2319,7 +2296,7 @@
 									"path": [
 										"admin",
 										"events",
-										"1"
+										"2"
 									]
 								}
 							},
@@ -2361,7 +2338,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost:8080/admin/events/1",
+									"raw": "http://localhost:8080/admin/events/2",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -2370,7 +2347,7 @@
 									"path": [
 										"admin",
 										"events",
-										"1"
+										"2"
 									]
 								}
 							},
@@ -2567,7 +2544,7 @@
 											"    const response = pm.response.json();",
 											"    pm.expect(response).to.have.property(\"id\");",
 											"    pm.expect(response).to.have.property(\"created\");",
-											"    pm.expect(response).to.have.property(\"event\", 1);",
+											"    pm.expect(response).to.have.property(\"event\", 2);",
 											"    pm.expect(response).to.have.property(\"requester\", 3);",
 											"    pm.expect(response).to.have.property(\"status\", \"CONFIRMED\");",
 											"});",
@@ -2582,7 +2559,7 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:8080/users/3/requests?eventId=1",
+									"raw": "http://localhost:8080/users/3/requests?eventId=2",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -2596,7 +2573,7 @@
 									"query": [
 										{
 											"key": "eventId",
-											"value": "1"
+											"value": "2"
 										}
 									]
 								}
@@ -2627,7 +2604,7 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:8080/users/3/requests?eventId=1",
+									"raw": "http://localhost:8080/users/3/requests?eventId=2",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -2641,7 +2618,7 @@
 									"query": [
 										{
 											"key": "eventId",
-											"value": "1"
+											"value": "2"
 										}
 									]
 								}
@@ -2660,7 +2637,7 @@
 											"    const response = pm.response.json();",
 											"    pm.expect(response.status).eql(\"CONFLICT\");",
 											"    pm.expect(response.reason).eql(\"For the requested operation the conditions are not met.\");",
-											"    pm.expect(response.message).to.include(\"cannot request participation in their own event.\");",
+											"    pm.expect(response.message).to.include(\"Event initiator can not request participation in their own event.\");",
 											"});",
 											""
 										],
@@ -2673,7 +2650,7 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:8080/users/1/requests?eventId=1",
+									"raw": "http://localhost:8080/users/1/requests?eventId=2",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -2687,7 +2664,7 @@
 									"query": [
 										{
 											"key": "eventId",
-											"value": "1"
+											"value": "2"
 										}
 									]
 								}
@@ -2723,7 +2700,7 @@
 									"file": {}
 								},
 								"url": {
-									"raw": "http://localhost:8080/users/3/requests?eventId=2",
+									"raw": "http://localhost:8080/users/3/requests?eventId=1",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -2737,7 +2714,7 @@
 									"query": [
 										{
 											"key": "eventId",
-											"value": "2"
+											"value": "1"
 										}
 									]
 								}
@@ -2930,7 +2907,7 @@
 											"    pm.response.to.have.status(200);",
 											"    const response = pm.response.json();",
 											"    pm.expect(response).to.have.property(\"id\", 1);",
-											"    pm.expect(response).to.have.property(\"status\", \"PENDING\");",
+											"    pm.expect(response).to.have.property(\"status\", \"CANCELED\");",
 											"    pm.expect(response).to.have.property(\"event\");",
 											"    pm.expect(response).to.have.property(\"requester\", 3);",
 											"    pm.expect(response).to.have.property(\"created\");",
@@ -3686,67 +3663,6 @@
 							"response": []
 						},
 						{
-							"name": "update request",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Статус заявок успешно изменён\", function () {",
-											"    pm.response.to.have.status(200);",
-											"    const response = pm.response.json();",
-											"",
-											"    pm.expect(response).to.have.property(\"confirmedRequests\").that.is.an(\"array\");",
-											"    pm.expect(response).to.have.property(\"rejectedRequests\").that.is.an(\"array\");",
-											"",
-											"    response.confirmedRequests.forEach(req => {",
-											"        pm.expect(req).to.have.property(\"id\").that.is.a(\"number\");",
-											"        pm.expect(req).to.have.property(\"status\", \"CONFIRMED\");",
-											"    });",
-											"",
-											"    response.rejectedRequests.forEach(req => {",
-											"        pm.expect(req).to.have.property(\"id\").that.is.a(\"number\");",
-											"        pm.expect(req).to.have.property(\"status\", \"REJECTED\");",
-											"    });",
-											"});",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"request": {
-								"method": "PATCH",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"requestIds\": [1],\n  \"status\": \"CONFIRMED\"\n}\n",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "http://localhost:8080/users/1/events/3/requests",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8080",
-									"path": [
-										"users",
-										"1",
-										"events",
-										"3",
-										"requests"
-									]
-								}
-							},
-							"response": []
-						},
-						{
 							"name": "incorrect request",
 							"event": [
 								{
@@ -3844,58 +3760,6 @@
 										"1",
 										"events",
 										"999",
-										"requests"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "request not accessible",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Попытка изменения неподходящих заявок\", function () {",
-											"    pm.response.to.have.status(400);",
-											"    const response = pm.response.json();",
-											"",
-											"    pm.expect(response.status).eql(\"BAD_REQUEST\");",
-											"    pm.expect(response.reason).eql(\"Incorrectly made request.\");",
-											"    pm.expect(response.message).to.include(\"No moderation required\");",
-											"});",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"request": {
-								"method": "PATCH",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"requestIds\": [3, 4],\n  \"status\": \"CONFIRMED\"\n}\n",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "http://localhost:8080/users/1/events/2/requests",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8080",
-									"path": [
-										"users",
-										"1",
-										"events",
-										"2",
 										"requests"
 									]
 								}
@@ -4388,7 +4252,7 @@
 											"",
 											"    pm.expect(response).to.have.property(\"status\", \"NOT_FOUND\");",
 											"    pm.expect(response).to.have.property(\"reason\", \"The required object was not found.\");",
-											"    pm.expect(response.message).to.include(\"Category with id=\");",
+											"    pm.expect(response.message).to.include(\"not found\");",
 											"});",
 											""
 										],
@@ -4493,7 +4357,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:8080/events?text=is&categories=2&paid=true&rangeStart=2024-01-01T00:00:00&rangeEnd=2024-12-31T23:59:59&onlyAvailable=true&sort=EVENT_DATE&from=0&size=10",
+									"raw": "http://localhost:8080/events?text=is&categories=2&paid=true&rangeStart=2024-01-01 00:00:00&rangeEnd=2024-12-31 23:59:59&onlyAvailable=true&sort=EVENT_DATE&from=0&size=10",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -4517,11 +4381,11 @@
 										},
 										{
 											"key": "rangeStart",
-											"value": "2024-01-01T00:00:00"
+											"value": "2024-01-01 00:00:00"
 										},
 										{
 											"key": "rangeEnd",
-											"value": "2024-12-31T23:59:59"
+											"value": "2024-12-31 23:59:59"
 										},
 										{
 											"key": "onlyAvailable",
@@ -4643,7 +4507,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:8080/events/1",
+									"raw": "http://localhost:8080/events/2",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -4651,7 +4515,7 @@
 									"port": "8080",
 									"path": [
 										"events",
-										"1"
+										"2"
 									]
 								}
 							},

@@ -16,7 +16,7 @@ import jakarta.validation.constraints.Size;
 public class UpdateEventUserRequest {
     @Size(min = 20, max = 2000)
     private String annotation;
-    private Integer category;
+    private Long category;
     @Size(min = 20, max = 7000)
     private String description;
     // example: 2023-10-11 23:10:05
